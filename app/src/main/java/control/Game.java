@@ -34,6 +34,11 @@ public class Game {
         loader = new Loader(this);
     }
 
+    public Game(Physics physics) {
+        this();
+        this.physics = physics;
+    }
+
     public void launch() {
         graphicsPanel.init();
         gameHandler.init();
@@ -67,9 +72,5 @@ public class Game {
 
     public Physics getPhysics() {
         return physics;
-    }
-
-    public void setPhysics(Physics physics) {
-        this.physics = physics;
     }
 }
