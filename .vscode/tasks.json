@@ -1,0 +1,41 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "gradle",
+			"id": "/home/matthew/src/Projects/MarodiGameLibrunMarodiGameLib",
+			"script": "run",
+			"description": "Runs this project as a JVM application",
+			"group": "build",
+			"project": "MarodiGameLib",
+			"buildFile": "/home/matthew/src/Projects/MarodiGameLib/build.gradle",
+			"rootProject": "MarodiGameLib",
+			"projectFolder": "/home/matthew/src/Projects/MarodiGameLib",
+			"workspaceFolder": "/home/matthew/src/Projects/MarodiGameLib",
+			"args": "",
+			"javaDebug": false,
+			"problemMatcher": [
+				"$gradle"
+			],
+			"label": "gradle: run"
+		},
+		{
+			"type": "gradle",
+			"id": "/home/matthew/src/Projects/MarodiGameLibjarMarodiGameLib",
+			"script": "jar",
+			"description": "Assembles a jar archive containing the main classes.",
+			"group": "build",
+			"project": "MarodiGameLib",
+			"buildFile": "/home/matthew/src/Projects/MarodiGameLib/build.gradle",
+			"rootProject": "MarodiGameLib",
+			"projectFolder": "/home/matthew/src/Projects/MarodiGameLib",
+			"workspaceFolder": "/home/matthew/src/Projects/MarodiGameLib",
+			"args": "",
+			"javaDebug": false,
+			"problemMatcher": [
+				"$gradle"
+			],
+			"label": "gradle: jar"
+		}
+	]
+}
