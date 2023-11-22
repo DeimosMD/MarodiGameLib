@@ -11,13 +11,13 @@ public class Game {
 
     private final GraphicsPanel graphicsPanel;
     private final GameHandler gameHandler;
-    protected RuntimeSettings runtimeSettings;
-    protected KeyHandler keyHandler;
-    protected SpriteHandler spriteHandler;
-    protected ElementHandler elementHandler;
-    protected Camera camera;
-    protected Screen screen;
-    protected Loader loader;
+    public RuntimeSettings runtimeSettings;
+    public final KeyHandler keyHandler;
+    public final SpriteHandler spriteHandler;
+    public final ElementHandler elementHandler;
+    public final Camera camera;
+    public final Screen screen;
+    public final Loader loader;
     private World currentWorld = new World();
     private double frameTime;
     private Physics physics = new RoamerPhysics();
@@ -34,39 +34,11 @@ public class Game {
         loader = new Loader(this);
     }
 
-    protected void launch() {
+    public void launch() {
         graphicsPanel.init();
         gameHandler.init();
         keyHandler.init();
         gameHandler.getThread().start();
-    }
-
-    public RuntimeSettings getRuntimeSettings() {
-        return runtimeSettings;
-    }
-
-    public KeyHandler getKeyHandler() {
-        return keyHandler;
-    }
-
-    public SpriteHandler getSpriteHandler() {
-        return spriteHandler;
-    }
-
-    public ElementHandler getElementHandler() {
-        return elementHandler;
-    }
-
-    public Camera getCamera() {
-        return camera;
-    }
-
-    public Screen getScreen() {
-        return screen;
-    }
-
-    public Loader getLoader() {
-        return loader;
     }
 
     GraphicsPanel getGraphicsPanel() {
