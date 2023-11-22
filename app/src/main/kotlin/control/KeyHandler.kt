@@ -16,9 +16,9 @@ class KeyHandler (
     private var effectivePressed = Vector<Int>() // Keys being held down at current time and any pressed during the current frame
 
     fun init() {
-        screen.addKeyListener(this)
-        screen.isFocusable = true
-        screen.requestFocusInWindow()
+        screen?.addKeyListener(this)
+        screen?.isFocusable = true
+        screen?.requestFocusInWindow()
     }
 
 
