@@ -60,7 +60,7 @@ class Player extends Sprite {
 }
 ```
 Now to launch the game, we must create an instance of the _App_ class 
-and call it's _launch()_ method.
+and call its _launch()_ method.
 ```
 package org.game;
 
