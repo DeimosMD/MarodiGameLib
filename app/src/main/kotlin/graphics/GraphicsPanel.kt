@@ -14,7 +14,7 @@ class GraphicsPanel (
     private val camera get() = game.camera
     private val world get() = game.currentWorld
 
-    var graphics2D = null as Graphics2D?
+    internal var graphics2D = null as Graphics2D?
 
     fun init() {
         this.isDoubleBuffered = true
