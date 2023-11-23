@@ -39,24 +39,30 @@ public abstract class PhysicalPositional extends Positional {
         this.frictionalResistance = resistance;
     }
 
-     double getSpecVerticalResistance(Physics physics) {
-        if (physics instanceof PlatformerPhysics)
+    double getSpecVerticalResistance(Physics physics) {
+        if (physics instanceof PlatformerPhysics) {
             return verticalAirResistance;
+        } else if (physics instanceof RoamerPhysics) {
+            if (horizontalCollision != 0)
+                return resistance + frictionalResistance;
+            else
+                return resistance;
+        }
         throw (new IllegalArgumentException());
     }
 
     double getSpecHorizontalResistance(Physics physics) {
         if (physics instanceof PlatformerPhysics) {
-            if (verticalCollision == -1)
+            if (verticalCollision != 0)
                 return horizontalAirResistance + frictionalResistance;
             else
                 return horizontalAirResistance;
+        } else if (physics instanceof RoamerPhysics) {
+            if (verticalCollision != 0)
+                return resistance + frictionalResistance;
+            else
+                return resistance;
         }
-        throw (new IllegalArgumentException());
-    }
-
-    double getSpecResistance(Physics physics) {
-        if (physics instanceof RoamerPhysics) return resistance;
         throw (new IllegalArgumentException());
     }
 
@@ -102,8 +108,11 @@ public abstract class PhysicalPositional extends Positional {
         velocityY *= 1 - resistanceY;
     }
 
-    void changeVelocityWithResistance(double resistance) {
-        velocityX *= 1 - resistance;
-        velocityY *= 1 - resistance;
+    protected int getVerticalCollision() {
+        return verticalCollision;
+    }
+
+    protected int getHorizontalCollision() {
+        return horizontalCollision;
     }
 }

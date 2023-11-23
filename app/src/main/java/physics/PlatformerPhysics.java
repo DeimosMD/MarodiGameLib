@@ -1,13 +1,12 @@
 package physics;
 
-
 import control.Game;
 
 public class PlatformerPhysics extends Physics {
 
     private double baseVerticalAirResistance;
     private double baseHorizontalAirResistance;
-    private double baseFrictionalResistance;
+
 
     @Override
     public void update(Game game) {
@@ -16,7 +15,7 @@ public class PlatformerPhysics extends Physics {
 
     double getHorizontalResistance(PhysicalPositional ph) {
         double a;
-        if (ph.verticalCollision == -1)
+        if (ph.verticalCollision != 0)
             a = getBaseHorizontalAirResistance() + getBaseFrictionalResistance() + ph.getSpecHorizontalResistance(this);
         else
             a = getBaseHorizontalAirResistance() + ph.getSpecHorizontalResistance(this);
@@ -46,13 +45,5 @@ public class PlatformerPhysics extends Physics {
 
     public void setBaseHorizontalAirResistance(double baseHorizontalAirResistance) {
         this.baseHorizontalAirResistance = baseHorizontalAirResistance;
-    }
-
-    public double getBaseFrictionalResistance() {
-        return baseFrictionalResistance;
-    }
-
-    public void setBaseFrictionalResistance(double baseFrictionalResistance) {
-        this.baseFrictionalResistance = baseFrictionalResistance;
     }
 }

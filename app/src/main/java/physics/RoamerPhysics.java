@@ -15,13 +15,24 @@ public class RoamerPhysics extends Physics {
             if (!(p instanceof PhysicalPositional)) v.remove(p);
         for (Positional p : v) {
             PhysicalPositional ph = (PhysicalPositional) p;
-            ph.changeVelocityWithResistance(getTotalResistance(ph));
+            ph.changeVelocityWithResistance(getHorizontalResistance(ph), getVerticalResistance(ph));
             ph.changePosByVelocity();
         }
     }
 
-    private double getTotalResistance(PhysicalPositional ph) {
-        double a = getBaseResistance() + ph.getSpecResistance(this);
+    double getHorizontalResistance(PhysicalPositional ph) {
+        double a = getBaseResistance() + ph.getSpecHorizontalResistance(this);
+        if (ph.horizontalCollision != 0)
+            a += baseFrictionalResistance;
+        if (a >= 1) return 1;
+        if (a <= 0) return 0;
+        return a;
+    }
+
+    double getVerticalResistance(PhysicalPositional ph) {
+        double a = getBaseResistance() + ph.getSpecVerticalResistance(this);
+        if (ph.verticalCollision != 0)
+            a += baseFrictionalResistance;
         if (a >= 1) return 1;
         if (a <= 0) return 0;
         return a;
