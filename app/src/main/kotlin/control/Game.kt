@@ -23,6 +23,7 @@ public open class Game {
         internal set
     public var physics: Physics = RoamerPhysics()
         private set
+    public val statDraw get() = graphicsPanel.graphics2D
 
     public constructor() {
         indirectConstruction()

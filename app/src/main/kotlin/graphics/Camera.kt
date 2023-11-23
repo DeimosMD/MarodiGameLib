@@ -20,10 +20,14 @@ public class Camera (
         return (-inY + (runtimeSettings.screenHeight / 2 + y)).toInt()
     }
 
-    public fun drawImage(img: BufferedImage?, positional: Positional) {
-        val dx = toScreenX(positional.x)
-        val dy = toScreenY(positional.y) - img?.getHeight(null)!!
+    public fun drawImage(img: BufferedImage?, x: Double, y: Double) {
+        val dx = toScreenX(x)
+        val dy = toScreenY(y) - img?.getHeight(null)!!
         graphicsPanel.graphics2D?.drawImage(img, dx, dy, null)
+    }
+
+    public fun drawImage(img: BufferedImage?, positional: Positional) {
+        drawImage(img, positional.x, positional.y)
     }
 
     public fun drawRect(w: Double, h: Double, color: Color, x: Double, y: Double) {
