@@ -34,7 +34,6 @@ public abstract class PhysicalPositional extends Positional {
     }
 
     public void setFrictionalResistance(double resistance, Game game) {
-        if (!(game.getPhysics() instanceof PlatformerPhysics)) throw (new IllegalArgumentException());
         if (resistance < 0 || resistance > 1) throw (new IllegalArgumentException());
         this.frictionalResistance = resistance;
     }
