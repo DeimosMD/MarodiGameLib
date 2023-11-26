@@ -4,7 +4,6 @@ import component.sprite.Drawable
 import component.sprite.Sprite
 import component.sprite.Updatable
 import control.Game
-import physics.PhysicalPositional
 
 class World {
 
@@ -23,7 +22,6 @@ class World {
                     o.update(game)
             }
         }
-
     }
 
     fun draw(game: Game) {
