@@ -4,9 +4,11 @@ import component.world.World
 import graphics.Camera
 import graphics.GraphicsPanel
 import graphics.Screen
+import physics.PhysicalPositional
 import physics.Physics
 import physics.RoamerPhysics
 import resource.Loader
+import java.util.*
 
 public open class Game {
     internal lateinit var graphicsPanel: GraphicsPanel
@@ -24,6 +26,11 @@ public open class Game {
     public var physics: Physics = RoamerPhysics()
         private set
     public val statDraw get() = graphicsPanel.graphics2D
+    public val activePhysicalPositionals: Vector<PhysicalPositional> get() {
+        val v = Vector<PhysicalPositional>()
+        for (p in currentWorld.vector2D) if (p is PhysicalPositional) v.add(p)
+        return v;
+    }
 
     public constructor() {
         indirectConstruction()

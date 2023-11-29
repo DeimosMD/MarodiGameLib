@@ -1,7 +1,5 @@
 package physics;
 
-import component.world.Positional;
-import component.world.Vector2D;
 import control.Game;
 
 public class RoamerPhysics extends Physics {
@@ -10,14 +8,11 @@ public class RoamerPhysics extends Physics {
 
     @Override
     public void update(Game game) {
-        Vector2D v = (Vector2D) game.getCurrentWorld().getVector2D().clone();
-        for (Positional p : v)
-            if (!(p instanceof PhysicalPositional)) v.remove(p);
-        for (Positional p : v) {
-            PhysicalPositional ph = (PhysicalPositional) p;
+        for (PhysicalPositional ph : game.getActivePhysicalPositionals()) {
             ph.changeVelocityWithResistance(getHorizontalResistance(ph), getVerticalResistance(ph));
             ph.changePosByVelocity();
         }
+        collision.update(game);
     }
 
     double getHorizontalResistance(PhysicalPositional ph) {

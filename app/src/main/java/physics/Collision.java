@@ -1,5 +1,9 @@
 package physics;
 
+import control.Game;
+
+import java.util.Vector;
+
 public class Collision {
 
     public final static int ALL = 0;
@@ -9,8 +13,9 @@ public class Collision {
     public final static int RIGHT = 4;
     public final static int VERTICAL = 5;
     public final static int HORIZONTAL = 6;
-
-    Physics physics;
+    private final Vector<TypeRelation>  typeRelationList = new Vector<>();
+    private final Vector<ObjectRelation>  objectRelationList = new Vector<>();
+    private final Physics physics;
 
     public Collision(Physics physics) {
         this.physics = physics;
@@ -87,7 +92,7 @@ public class Collision {
         return x;
     }
 
-    private int collide(PhysicalPositional o1, PhysicalPositional o2, int direction) {
+     int collide(PhysicalPositional o1, PhysicalPositional o2, int direction) {
         int r = 1;
         if (direction == DOWN || direction == UP || direction == VERTICAL || direction == ALL) {
             double y = getVerticalCollisionOffset(o1, o2);
@@ -120,14 +125,77 @@ public class Collision {
         return r;
     }
 
-    public boolean monoPush(PhysicalPositional pushed, PhysicalPositional pusher, int direction) {
-        int r = collide(pushed, pusher, direction);
-        if (r % VERTICAL == 0) {
-            pushed.velocityY = pusher.velocityY;
+    private record TypeRelation(Class<?> t1, Class<?> t2, int direction, CollisionType collisionType) {}
+
+    private record ObjectRelation(PhysicalPositional o1, PhysicalPositional o2, int direction, CollisionType collisionType) {}
+
+    public boolean addRelation(Class<?> t1, Class<?> t2, int direction, CollisionType collisionType) {
+        return typeRelationList.add(new TypeRelation(t1, t2, direction, collisionType));
+    }
+
+    public boolean removeRelation(Class<?> t1, Class<?> t2) {
+        int a = 0;
+        for (TypeRelation r : typeRelationList)
+            if (t1 == r.t1 && t2 == r.t2) {
+                typeRelationList.remove(r);
+                a++;
+            }
+        return a > 0;
+    }
+
+    public boolean removeRelation(PhysicalPositional o1, PhysicalPositional o2) {
+        int a = 0;
+        for (ObjectRelation r : objectRelationList)
+            if (o1 == r.o1 && o2 == r.o2) {
+                objectRelationList.remove(r);
+                a++;
+            }
+        return a > 0;
+    }
+
+    public boolean addRelation(PhysicalPositional o1, PhysicalPositional o2, int direction, CollisionType collisionType) {
+        return objectRelationList.add(new ObjectRelation(o1, o2, direction, collisionType));
+    }
+
+    void update(Game game) {
+        for (PhysicalPositional ph: game.getActivePhysicalPositionals()) {
+            ph.horizontalCollision = 0;
+            ph.verticalCollision = 0;
         }
-        if (r % HORIZONTAL == 0) {
-            pushed.velocityX = pusher.velocityX;
+        for (ObjectRelation r : objectRelationList) {
+            r.collisionType.col(r.o1, r.o2, r.direction);
         }
-        return r != 1;
+        for (TypeRelation r : typeRelationList) {
+            for (PhysicalPositional ph1 : game.getActivePhysicalPositionals()) {
+                for (PhysicalPositional ph2 : game.getActivePhysicalPositionals()) {
+                    if (ph1.getClass() == r.t1() && ph2.getClass() == r.t2())
+                        r.collisionType.col(ph1, ph2, r.direction);
+                }
+            }
+        }
+    }
+
+    public static class MonoPush implements CollisionType {
+
+        private final Collision collision;
+
+        private MonoPush(Collision collision) {
+            this.collision = collision;
+        }
+
+        public boolean col(PhysicalPositional pushed, PhysicalPositional pusher, int direction) {
+            int r = collision.collide(pushed, pusher, direction);
+            if (r % VERTICAL == 0) {
+                pushed.velocityY = pusher.velocityY;
+            }
+            if (r % HORIZONTAL == 0) {
+                pushed.velocityX = pusher.velocityX;
+            }
+            return r != 1;
+        }
+    }
+
+    public MonoPush monoPush() {
+        return new MonoPush(this);
     }
 }
