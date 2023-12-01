@@ -29,7 +29,7 @@ public open class Game {
     public val activePhysicalPositionals: Vector<PhysicalPositional> get() {
         val v = Vector<PhysicalPositional>()
         for (p in currentWorld.vector2D) if (p is PhysicalPositional) v.add(p)
-        return v;
+        return v
     }
 
     public constructor() {

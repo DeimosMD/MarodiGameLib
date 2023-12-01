@@ -12,8 +12,9 @@ public abstract class PhysicalPositional extends Positional {
     int verticalCollision;
     int horizontalCollision;
     protected Hitbox[] hitbox =  { new Hitbox(0, 0, 0, 0) };
-    protected double velocityX;
-    protected double velocityY;
+    protected double velocityX = 0;
+    protected double velocityY = 0;
+    protected double mass = 1;
 
     public void setResistance(double resistance, Game game) {
         if (!(game.getPhysics() instanceof RoamerPhysics)) throw (new IllegalArgumentException());
@@ -113,5 +114,13 @@ public abstract class PhysicalPositional extends Positional {
 
     protected int getHorizontalCollision() {
         return horizontalCollision;
+    }
+
+    public double getMass() {
+        return mass;
+    }
+
+    public void setMass(double mass) {
+        this.mass = mass;
     }
 }
