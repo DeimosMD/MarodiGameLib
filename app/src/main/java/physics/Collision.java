@@ -14,6 +14,8 @@ public final class Collision {
     public final static int HORIZONTAL = 6;
     private final Vector<TypeRelation> typeRelationList = new Vector<>();
     private final Vector<ObjectRelation> objectRelationList = new Vector<>();
+    private final Vector<TypeObjectRelation> typeObjectRelationList = new Vector<>();
+    private final Vector<ObjectTypeRelation> objectTypeRelationList = new Vector<>();
     private final Physics physics;
 
     public Collision(Physics physics) {
@@ -45,7 +47,7 @@ public final class Collision {
 
     // if colliding on axis return amount to adjust o1 on that axis so that it would no longer be colliding with o2 on that axis
     // else return 0
-    private double getVerticalCollisionOffset(PhysicalPositional o1, PhysicalPositional o2) {
+    double getVerticalCollisionOffset(PhysicalPositional o1, PhysicalPositional o2) {
         double y = 0;
         double r1 = 1 / (1 - physics.getVerticalResistance(o1));
         double r2 = 1 / (1 - physics.getVerticalResistance(o2));
@@ -93,7 +95,7 @@ public final class Collision {
         return x;
     }
 
-    private boolean[] monoCollide(PhysicalPositional o1, PhysicalPositional o2, int direction) {
+    boolean[] monoCollide(PhysicalPositional o1, PhysicalPositional o2, int direction) {
         boolean[] b = new boolean[2];
         if (direction == DOWN || direction == UP || direction == VERTICAL || direction == ALL) {
             double y = getVerticalCollisionOffset(o1, o2);
@@ -136,6 +138,16 @@ public final class Collision {
     ) {
     }
 
+    private record TypeObjectRelation(
+            Class<?> t, PhysicalPositional o, int direction, CollisionType collisionType
+    ) {
+    }
+
+    private record ObjectTypeRelation (
+            PhysicalPositional o, Class<?> t, int direction, CollisionType collisionType
+    ) {
+    }
+
     public boolean addRelation(Class<?> t1, Class<?> t2, int direction, CollisionType collisionType) {
         return typeRelationList.add(new TypeRelation(t1, t2, direction, collisionType));
     }
@@ -150,6 +162,10 @@ public final class Collision {
         return a > 0;
     }
 
+    public boolean addRelation(PhysicalPositional o1, PhysicalPositional o2, int direction, CollisionType collisionType) {
+        return objectRelationList.add(new ObjectRelation(o1, o2, direction, collisionType));
+    }
+
     public boolean removeRelation(PhysicalPositional o1, PhysicalPositional o2) {
         int a = 0;
         for (ObjectRelation r : objectRelationList)
@@ -160,8 +176,32 @@ public final class Collision {
         return a > 0;
     }
 
-    public boolean addRelation(PhysicalPositional o1, PhysicalPositional o2, int direction, CollisionType collisionType) {
-        return objectRelationList.add(new ObjectRelation(o1, o2, direction, collisionType));
+    public boolean addRelation(Class<?> t, PhysicalPositional o, int direction, CollisionType collisionType) {
+        return typeObjectRelationList.add(new TypeObjectRelation(t, o, direction, collisionType));
+    }
+
+    public boolean removeRelation(Class<?> t, PhysicalPositional o) {
+        int a = 0;
+        for (TypeObjectRelation r : typeObjectRelationList)
+            if (o == r.o && t == r.t) {
+                typeObjectRelationList.remove(r);
+                a++;
+            }
+        return a > 0;
+    }
+
+    public boolean addRelation(PhysicalPositional o, Class<?> t, int direction, CollisionType collisionType) {
+        return objectTypeRelationList.add(new ObjectTypeRelation(o, t, direction, collisionType));
+    }
+
+    public boolean removeRelation(PhysicalPositional o, Class<?> t) {
+        int a = 0;
+        for (ObjectTypeRelation r : objectTypeRelationList)
+            if (o == r.o && t == r.t) {
+                objectTypeRelationList.remove(r);
+                a++;
+            }
+        return a > 0;
     }
 
     void update(Game game) {
@@ -169,22 +209,31 @@ public final class Collision {
             ph.horizontalCollision = 0;
             ph.verticalCollision = 0;
         }
-        for (ObjectRelation r : objectRelationList) {
-            r.collisionType.col(r.o1, r.o2, r.direction);
-        }
-        for (TypeRelation r : typeRelationList) {
-            for (PhysicalPositional ph1 : game.getActivePhysicalPositionals()) {
-                for (PhysicalPositional ph2 : game.getActivePhysicalPositionals()) {
-                    if (ph1.getClass() == r.t1() && ph2.getClass() == r.t2())
-                        r.collisionType.col(ph1, ph2, r.direction);
-                }
-            }
-        }
+        for (ObjectRelation r : objectRelationList)
+            r.collisionType().col(r.o1(), r.o2(), r.direction());
+        for (TypeObjectRelation r : typeObjectRelationList)
+            for (PhysicalPositional ph : game.getActivePhysicalPositionals())
+                if (ph.getClass() == r.t())
+                    r.collisionType().col(ph, r.o(), r.direction());
+        for (ObjectTypeRelation r : objectTypeRelationList)
+            for (PhysicalPositional ph : game.getActivePhysicalPositionals())
+                if (ph.getClass() == r.t())
+                    r.collisionType().col(r.o(), ph, r.direction());
+        for (TypeRelation r : typeRelationList)
+            for (PhysicalPositional ph1 : game.getActivePhysicalPositionals())
+                if (ph1.getClass() == r.t1())
+                    for (PhysicalPositional ph2 : game.getActivePhysicalPositionals())
+                         if (ph2.getClass() == r.t2())
+                            r.collisionType().col(ph1, ph2, r.direction());
     }
 
     public static class MonoPush extends CollisionType {
         private MonoPush(Collision collision) {
             super(collision);
+        }
+        private MonoPush() throws InstantiationException {
+            super(null);
+            throw new InstantiationException();
         }
 
         boolean col(PhysicalPositional pushed, PhysicalPositional pusher, int direction) {
@@ -207,6 +256,10 @@ public final class Collision {
 
         private WeightedPush(Collision collision) {
             super(collision);
+        }
+        private WeightedPush() throws InstantiationException {
+            super(null);
+            throw new InstantiationException();
         }
 
         boolean col(PhysicalPositional o1, PhysicalPositional o2, int direction) {
@@ -288,6 +341,11 @@ public final class Collision {
         private MonoBounce(Collision collision, double bounciness) {
             super(collision);
             this.bounciness = bounciness;
+        }
+
+        private MonoBounce() throws InstantiationException {
+            super(null);
+            throw new InstantiationException();
         }
 
         boolean col(PhysicalPositional pushed, PhysicalPositional pusher, int direction) {
