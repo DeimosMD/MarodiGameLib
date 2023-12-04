@@ -7,7 +7,13 @@ public abstract class Physics {
     public final Collision collision = new Collision(this);
     double baseFrictionalResistance;
 
-    public abstract void update(Game game);
+    public void update(Game game) {
+        for (PhysicalPositional ph : game.getActivePhysicalPositionals()) {
+            ph.changeVelocityWithResistance(getHorizontalResistance(ph), getVerticalResistance(ph));
+            ph.changePosByVelocity();
+        }
+        collision.update(game);
+    }
 
     abstract double getHorizontalResistance(PhysicalPositional ph);
 
@@ -18,6 +24,8 @@ public abstract class Physics {
     }
 
     public void setBaseFrictionalResistance(double baseFrictionalResistance) {
+        if (baseFrictionalResistance < 0 || baseFrictionalResistance > 1)
+            throw new IllegalArgumentException("baseFrictionalResistance must be '0 <= x <= 1'");
         this.baseFrictionalResistance = baseFrictionalResistance;
     }
 }

@@ -11,6 +11,7 @@ public class PlatformerPhysics extends Physics {
     @Override
     public void update(Game game) {
 
+        super.update(game);
     }
 
     double getHorizontalResistance(PhysicalPositional ph) {
@@ -36,6 +37,8 @@ public class PlatformerPhysics extends Physics {
     }
 
     public void setBaseVerticalAirResistance(double baseVerticalAirResistance) {
+        if (baseVerticalAirResistance < 0 || baseVerticalAirResistance > 1)
+            throw new IllegalArgumentException("baseVerticalAirResistance must be '0 <= x <= 1'");
         this.baseVerticalAirResistance = baseVerticalAirResistance;
     }
 
@@ -44,6 +47,8 @@ public class PlatformerPhysics extends Physics {
     }
 
     public void setBaseHorizontalAirResistance(double baseHorizontalAirResistance) {
+        if (baseHorizontalAirResistance < 0 || baseHorizontalAirResistance > 1)
+            throw new IllegalArgumentException("baseHorizontalAirResistance must be '0 <= x <= 1'");
         this.baseHorizontalAirResistance = baseHorizontalAirResistance;
     }
 }

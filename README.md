@@ -8,6 +8,9 @@ Marodi as well handles physics, collision, and camera scrolling.
 To utilize the library one must create a _Game_ object, 
 by either creating an instance of the 
 _Game_ class directly or creating a subclass and creating an instance of that. 
+Creating a _Game_ subclass is not necessary for the basic program made in
+this tutorial but is good practice because it is used a lot in more
+complex games.
 Below is an example of a _Game_ subclass.
 Creating sprites is as well practically necessary for any game. 
 Below also an example of how to make a basic _Player_ sprite class.
@@ -70,5 +73,10 @@ public class Main {
         game.launch();
     }
 }
-
 ```
+Well, How does this work? First off, the _start_ method sets the resistance of
+the sprites to 0.1 to slow it down by 10% every frame. The _draw_ method calls
+a method from the camera object to draw a 50x50 white rectangle at the position
+of the sprite. And lastly, the _update_ method checks if specific arrow keys are
+being pressed to determine how to accelerate by changing the velocity by the
+acceleration multiplied by the time the most recent frame took.

@@ -1,19 +1,8 @@
 package physics;
 
-import control.Game;
-
 public class RoamerPhysics extends Physics {
 
     private double baseResistance;
-
-    @Override
-    public void update(Game game) {
-        for (PhysicalPositional ph : game.getActivePhysicalPositionals()) {
-            ph.changeVelocityWithResistance(getHorizontalResistance(ph), getVerticalResistance(ph));
-            ph.changePosByVelocity();
-        }
-        collision.update(game);
-    }
 
     double getHorizontalResistance(PhysicalPositional ph) {
         double a = getBaseResistance() + ph.getSpecHorizontalResistance(this);
@@ -38,6 +27,8 @@ public class RoamerPhysics extends Physics {
     }
 
     public void setBaseResistance(double baseResistance) {
+        if (baseResistance < 0 || baseResistance > 1)
+            throw new IllegalArgumentException("baseResistance must be '0 <= x <= 1'");
         this.baseResistance = baseResistance;
     }
 }
