@@ -12,15 +12,15 @@ public class Camera (
     private val runtimeSettings get() = game.runtimeSettings
     private val graphicsPanel get() = game.graphicsPanel
 
-    private fun toScreenX(inX: Double): Int {
+    private fun toScreenX(inX: Float): Int {
         return (inX + (runtimeSettings.screenWidth / 2 - x)).toInt()
     }
 
-    private fun toScreenY(inY: Double): Int {
+    private fun toScreenY(inY: Float): Int {
         return (-inY + (runtimeSettings.screenHeight / 2 + y)).toInt()
     }
 
-    public fun drawImage(img: BufferedImage?, x: Double, y: Double) {
+    public fun drawImage(img: BufferedImage?, x: Float, y: Float) {
         val dx = toScreenX(x)
         val dy = toScreenY(y) - img?.getHeight(null)!!
         graphicsPanel.graphics2D?.drawImage(img, dx, dy, null)
@@ -30,7 +30,7 @@ public class Camera (
         drawImage(img, positional.x, positional.y)
     }
 
-    public fun drawRect(w: Double, h: Double, color: Color, x: Double, y: Double) {
+    public fun drawRect(w: Float, h: Float, color: Color, x: Float, y: Float) {
         graphicsPanel.graphics2D?.color = color
         val ih = h.toInt()
         val dx = toScreenX(x)
@@ -39,7 +39,7 @@ public class Camera (
         graphicsPanel.graphics2D?.color = null
     }
 
-    public fun drawRect(w: Double, h: Double, color: Color, positional: Positional) {
+    public fun drawRect(w: Float, h: Float, color: Color, positional: Positional) {
         drawRect(w, h, color, positional.x, positional.y)
     }
 }

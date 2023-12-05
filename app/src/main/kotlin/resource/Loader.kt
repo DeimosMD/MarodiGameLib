@@ -1,7 +1,6 @@
 package resource
 
 import control.Game
-import control.KeyHandler
 import java.awt.event.KeyEvent
 import java.awt.image.BufferedImage
 import java.io.IOException
@@ -22,14 +21,14 @@ class Loader (
 
     public fun update() {
         if (keyHandler.downPressed(KeyEvent.VK_F1))
-            reloadRes();
+            reloadRes()
     }
 
 
     public fun loadImage(path: String) {
         try {
             imageList[path] = ImageIO.read(Loader::class.java.classLoader.getResource(path))
-        } catch (e: IOException) {}
+        } catch (_: IOException) {}
         if (imageList[path] == null) {
             println("WARNING: Image '$path' failed to load")
         } else {

@@ -5,7 +5,7 @@ import control.Game;
 public abstract class Physics {
 
     public final Collision collision = new Collision(this);
-    double baseFrictionalResistance;
+    float baseFrictionalResistance;
 
     public void update(Game game) {
         for (PhysicalPositional ph : game.getActivePhysicalPositionals()) {
@@ -15,15 +15,15 @@ public abstract class Physics {
         collision.update(game);
     }
 
-    abstract double getHorizontalResistance(PhysicalPositional ph);
+    abstract float getHorizontalResistance(PhysicalPositional ph);
 
-    abstract double getVerticalResistance(PhysicalPositional ph);
+    abstract float getVerticalResistance(PhysicalPositional ph);
 
-    public double getBaseFrictionalResistance() {
+    public float getBaseFrictionalResistance() {
         return baseFrictionalResistance;
     }
 
-    public void setBaseFrictionalResistance(double baseFrictionalResistance) {
+    public void setBaseFrictionalResistance(float baseFrictionalResistance) {
         if (baseFrictionalResistance < 0 || baseFrictionalResistance > 1)
             throw new IllegalArgumentException("baseFrictionalResistance must be '0 <= x <= 1'");
         this.baseFrictionalResistance = baseFrictionalResistance;

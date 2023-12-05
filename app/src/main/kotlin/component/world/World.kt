@@ -4,13 +4,13 @@ import component.sprite.Drawable
 import component.sprite.Sprite
 import component.sprite.Updatable
 import control.Game
+import physics.PlatformerPhysics
+import java.lang.IllegalArgumentException
 
-class World {
-
-    public val vector2D: Vector2D = Vector2D(this)
+public open class World : Vector2D() {
 
     fun update(game: Game) {
-        for (o in vector2D) {
+        for (o in this) {
             if (o is Sprite) {
                 o.increaseLifespan()
                 if (o.lifespan == 1)
@@ -25,8 +25,14 @@ class World {
     }
 
     fun draw(game: Game) {
-        for (o in vector2D)
+        for (o in this)
             if (o is Drawable)
                 o.draw(game)
+    }
+
+    public open fun getGravity(game: Game): Float {
+        if (game.physics is PlatformerPhysics)
+            return (game.physics as PlatformerPhysics).gravity
+        throw IllegalArgumentException("Requires PlatformerPhysics")
     }
 }

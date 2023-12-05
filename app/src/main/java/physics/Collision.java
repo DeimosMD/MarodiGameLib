@@ -23,7 +23,7 @@ public final class Collision {
     }
 
     // checks if two one dimensional ranges have any common solutions and returns true if there are any
-    private boolean rangesCollide(double r1a, double r1b, double r2a, double r2b) {
+    private boolean rangesCollide(float r1a, float r1b, float r2a, float r2b) {
 
         // Swaps values if in wrong order
         if (r1a > r1b) {
@@ -47,22 +47,22 @@ public final class Collision {
 
     // if colliding on axis return amount to adjust o1 on that axis so that it would no longer be colliding with o2 on that axis
     // else return 0
-    double getVerticalCollisionOffset(PhysicalPositional o1, PhysicalPositional o2) {
-        double y = 0;
-        double r1 = 1 / (1 - physics.getVerticalResistance(o1));
-        double r2 = 1 / (1 - physics.getVerticalResistance(o2));
+    float getVerticalCollisionOffset(PhysicalPositional o1, PhysicalPositional o2) {
+        float y = 0;
+        float r1 = 1 / (1 - physics.getVerticalResistance(o1));
+        float r2 = 1 / (1 - physics.getVerticalResistance(o2));
         for (Hitbox h1 : o1.hitbox)
             for (Hitbox h2 : o2.hitbox) {
                 if (rangesCollide(h1.getLeftSide(o1.getX()), h1.getRightSide(o1.getX()),
                         h2.getLeftSide(o2.getX()), h2.getRightSide(o2.getX()))) {
                     if (h2.getTopSide(o2.getY()) > h1.getBottomSide(o1.getY())
                             && h2.getTopSide(o2.getY() - o2.getVelocityY() * r2) <= h1.getBottomSide(o1.getY() - o1.getVelocityY() * r1)) {
-                        double a = h2.getTopSide(o2.getY()) - h1.getBottomSide(o1.getY());
+                        float a = h2.getTopSide(o2.getY()) - h1.getBottomSide(o1.getY());
                         if (Math.abs(y) < Math.abs(a))
                             y = a;
                     } else if (h2.getBottomSide(o2.getY()) < h1.getTopSide(o1.getY())
                             && h2.getBottomSide(o2.getY() - o2.getVelocityY() * r2) >= h1.getTopSide(o1.getY() - o1.getVelocityY() * r1)) {
-                        double a = h2.getBottomSide(o2.getY()) - h1.getTopSide(o1.getY());
+                        float a = h2.getBottomSide(o2.getY()) - h1.getTopSide(o1.getY());
                         if (Math.abs(y) < Math.abs(a))
                             y = a;
                     }
@@ -71,22 +71,22 @@ public final class Collision {
         return y;
     }
 
-    private double getHorizontalCollisionOffset(PhysicalPositional o1, PhysicalPositional o2) {
-        double x = 0;
-        double r1 = 1 / (1 - physics.getHorizontalResistance(o1));
-        double r2 = 1 / (1 - physics.getHorizontalResistance(o2));
+    private float getHorizontalCollisionOffset(PhysicalPositional o1, PhysicalPositional o2) {
+        float x = 0;
+        float r1 = 1 / (1 - physics.getHorizontalResistance(o1));
+        float r2 = 1 / (1 - physics.getHorizontalResistance(o2));
         for (Hitbox h1 : o1.hitbox)
             for (Hitbox h2 : o2.hitbox) {
                 if (rangesCollide(h1.getBottomSide(o1.getY()), h1.getTopSide(o1.getY()),
                         h2.getBottomSide(o2.getY()), h2.getTopSide(o2.getY()))) {
                     if (h2.getRightSide(o2.getX()) > h1.getLeftSide(o1.getX())
                             && h2.getRightSide(o2.getX() - o2.getVelocityX() * r2) <= h1.getLeftSide(o1.getX() - o1.getVelocityX() * r1)) {
-                        double a = h2.getRightSide(o2.getX()) - h1.getLeftSide(o1.getX());
+                        float a = h2.getRightSide(o2.getX()) - h1.getLeftSide(o1.getX());
                         if (Math.abs(x) < Math.abs(a))
                             x = a;
                     } else if (h2.getLeftSide(o2.getX()) < h1.getRightSide(o1.getX())
                             && h2.getLeftSide(o2.getX() - o2.getVelocityX() * r2) >= h1.getRightSide(o1.getX() - o1.getVelocityX() * r1)) {
-                        double a = h2.getLeftSide(o2.getX()) - h1.getRightSide(o1.getX());
+                        float a = h2.getLeftSide(o2.getX()) - h1.getRightSide(o1.getX());
                         if (Math.abs(x) < Math.abs(a))
                             x = a;
                     }
@@ -98,7 +98,7 @@ public final class Collision {
     boolean[] monoCollide(PhysicalPositional o1, PhysicalPositional o2, int direction) {
         boolean[] b = new boolean[2];
         if (direction == DOWN || direction == UP || direction == VERTICAL || direction == ALL) {
-            double y = getVerticalCollisionOffset(o1, o2);
+            float y = getVerticalCollisionOffset(o1, o2);
             if ((direction == DOWN || direction == VERTICAL || direction == ALL) && y > 0) {
                 o1.verticalCollision = DOWN;
                 o2.verticalCollision = UP;
@@ -112,7 +112,7 @@ public final class Collision {
             }
         }
         if (direction == LEFT || direction == RIGHT || direction == HORIZONTAL || direction == ALL) {
-            double x = getHorizontalCollisionOffset(o1, o2);
+            float x = getHorizontalCollisionOffset(o1, o2);
             if ((direction == LEFT || direction == HORIZONTAL || direction == ALL) && x > 0) {
                 o1.horizontalCollision = LEFT;
                 o2.horizontalCollision = RIGHT;
@@ -265,7 +265,7 @@ public final class Collision {
         boolean col(PhysicalPositional o1, PhysicalPositional o2, int direction) {
             boolean b = false;
             if (direction == DOWN || direction == UP || direction == VERTICAL || direction == ALL) {
-                double y = collision.getVerticalCollisionOffset(o1, o2);
+                float y = collision.getVerticalCollisionOffset(o1, o2);
                 if ((direction == DOWN || direction == VERTICAL || direction == ALL) && y > 0) {
                     o1.verticalCollision = DOWN;
                     o2.verticalCollision = UP;
@@ -279,7 +279,7 @@ public final class Collision {
                 }
             }
             if (direction == LEFT || direction == RIGHT || direction == HORIZONTAL || direction == ALL) {
-                double x = collision.getHorizontalCollisionOffset(o1, o2);
+                float x = collision.getHorizontalCollisionOffset(o1, o2);
                 if ((direction == LEFT || direction == HORIZONTAL || direction == ALL) && x > 0) {
                     o1.horizontalCollision = LEFT;
                     o2.horizontalCollision = RIGHT;
@@ -295,14 +295,14 @@ public final class Collision {
             return b;
         }
 
-        private boolean isSameSign(double n1, double n2) {
+        private boolean isSameSign(float n1, float n2) {
             if ((n1 == 0 && n2 != 0) || (n2 == 0 && n1 != 0)) return false;
             if (n1 == 0 && (n2 == 0)) return true;
             return Math.abs(n1)/n1 == Math.abs(n2)/n2;
         }
 
-        private void adjustX(PhysicalPositional o1, PhysicalPositional o2, double x) {
-            double v = (o1.mass * o1.velocityX + o2.mass * o2.velocityX) / (o1.mass + o2.mass);
+        private void adjustX(PhysicalPositional o1, PhysicalPositional o2, float x) {
+            float v = (o1.mass * o1.velocityX + o2.mass * o2.velocityX) / (o1.mass + o2.mass);
             if (isSameSign(o1.getVelocityX(), v))
                 o2.incX(-x);
             else if (isSameSign(o2.getVelocityX(), v))
@@ -315,8 +315,8 @@ public final class Collision {
             o2.setVelocityX(v);
         }
 
-        private void adjustY(PhysicalPositional o1, PhysicalPositional o2, double y) {
-            double v = (o1.mass * o1.velocityY + o2.mass * o2.velocityY) / (o1.mass + o2.mass);
+        private void adjustY(PhysicalPositional o1, PhysicalPositional o2, float y) {
+            float v = (o1.mass * o1.velocityY + o2.mass * o2.velocityY) / (o1.mass + o2.mass);
             if (isSameSign(o1.getVelocityY(), v))
                 o2.incY(-y);
             else if (isSameSign(o2.getVelocityY(), v))
@@ -336,9 +336,9 @@ public final class Collision {
 
     public static class MonoBounce extends CollisionType {
 
-        private final double bounciness;
+        private final float bounciness;
 
-        private MonoBounce(Collision collision, double bounciness) {
+        private MonoBounce(Collision collision, float bounciness) {
             super(collision);
             this.bounciness = bounciness;
         }
@@ -360,7 +360,7 @@ public final class Collision {
         }
     }
 
-    public MonoBounce monoBounce(double bounciness) {
+    public MonoBounce monoBounce(float bounciness) {
         if (bounciness < 0)
             throw (new IllegalArgumentException());
         return new MonoBounce(this, bounciness);

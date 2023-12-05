@@ -38,7 +38,7 @@ class GameHandler (
             }
             trackFPS.increaseNum()
             frameNum++
-            game.frameTime = (System.nanoTime() - startTimeNS).toDouble() / 1_000_000_000
+            game.frameTime = (System.nanoTime() - startTimeNS).toFloat() / 1_000_000_000F
             startTimeNS = System.nanoTime()
             keyHandler.update()
             loader.update()

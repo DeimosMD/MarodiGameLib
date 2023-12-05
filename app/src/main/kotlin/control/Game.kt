@@ -21,14 +21,14 @@ public open class Game {
         private set
     public lateinit var loader: Loader
     public var currentWorld = World()
-    public var frameTime = 0.0
+    public var frameTime: Float = 0.0F
         internal set
     public var physics: Physics = RoamerPhysics()
         private set
     public val statDraw get() = graphicsPanel.graphics2D
     public val activePhysicalPositionals: Vector<PhysicalPositional> get() {
         val v = Vector<PhysicalPositional>()
-        for (p in currentWorld.vector2D) if (p is PhysicalPositional) v.add(p)
+        for (p in currentWorld) if (p is PhysicalPositional) v.add(p)
         return v
     }
 

@@ -2,31 +2,31 @@ package physics;
 
 public class Hitbox {
 
-    private final double width;
-    private final double height;
-    private final double xOffSet;
-    private final double yOffSet;
+    private final float width;
+    private final float height;
+    private final float xOffSet;
+    private final float yOffSet;
 
-    public Hitbox(double w, double h, double x, double y) {
+    public Hitbox(float w, float h, float x, float y) {
         width = w;
         height = h;
         xOffSet = x;
         yOffSet = y;
     }
 
-    double getLeftSide(double x) {
+    float getLeftSide(float x) {
         return x + xOffSet;
     }
 
-    double getRightSide(double x) {
+    float getRightSide(float x) {
         return x + xOffSet + width;
     }
 
-    double getBottomSide(double y) {
+    float getBottomSide(float y) {
         return y + yOffSet;
     }
 
-    double getTopSide(double y) {
+    float getTopSide(float y) {
         return y + yOffSet + height;
     }
 }

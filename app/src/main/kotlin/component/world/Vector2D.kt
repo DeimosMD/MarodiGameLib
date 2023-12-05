@@ -2,11 +2,7 @@ package component.world
 
 import java.util.*
 
-class Vector2D (
-    private val _world: World
-) : Vector<Positional>() {
-
-    public val world get() = _world
+abstract class Vector2D : Vector<Positional>() {
 
     public fun getAtPos(pos: Positional): Vector<Positional> {
         val list = Vector<Positional>()
@@ -48,8 +44,8 @@ class Vector2D (
     }
 
     override fun add(element: Positional): Boolean {
-        return if (element.vector == null) {
-            element.vector = this
+        return if (element.world == null) {
+            element.world = this as World
             super.add(element)
         } else false
     }
@@ -57,7 +53,7 @@ class Vector2D (
     override fun remove(element: Positional?): Boolean {
         return if (this.contains(element)) {
             if (element != null) {
-                element.vector = null
+                element.world = null
             }
             super.remove(element)
         } else false

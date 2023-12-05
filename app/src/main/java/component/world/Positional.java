@@ -2,17 +2,17 @@ package component.world;
 
 public abstract class Positional {
 
-    protected double x;
-    protected double y;
-    protected Vector2D vector = null;
+    protected float x;
+    protected float y;
+    protected World world = null;
 
-    public Positional(int x, int y) {
+    public Positional(float x, float y) {
         setPos(x, y);
     }
 
     public Positional() {}
 
-    public void setPos(double x, double y) {
+    public void setPos(float x, float y) {
         this.x = x;
         this.y = y;
     }
@@ -21,37 +21,29 @@ public abstract class Positional {
         this.setPos(pos.getX(), pos.getY());
     }
 
-    public double getX() {
+    public float getX() {
         return x;
     }
 
-    public double getY() {
+    public float getY() {
         return y;
     }
 
-    public void setX(double x) {
+    public void setX(float x) {
         this.x = x;
     }
 
-    public void setY(double y) {
+    public void setY(float y) {
         this.y = y;
     }
 
 
-    public void incX(double x) {
+    public void incX(float x) {
         this.x += x;
     }
 
-    public void incY(double y) {
+    public void incY(float y) {
         this.y += y;
-    }
-
-    // Used by Vector2D for add/remove
-    Vector2D getVector() {
-        return vector;
-    }
-    void setVector(Vector2D vector) {
-        this.vector = vector;
     }
 
     @Override
@@ -61,13 +53,13 @@ public abstract class Positional {
 
     // Used by lib user
     public World getWorld() {
-        return vector.getWorld();
+        return world;
     }
-    public void setWorld(World world) {
-        if (vector != null) {
-            vector.remove(this);
+    public void setWorld(World world1) {
+        if (world != null) {
+            world.remove(this);
         }
-        if (world != null)
-            world.getVector2D().add(this);
+        if (world1 != null)
+            world1.add(this);
     }
 }
