@@ -15,6 +15,8 @@ public abstract class PhysicalPositional extends Positional {
     protected float velocityX = 0;
     protected float velocityY = 0;
     protected float mass = 1;
+    protected boolean noVelo;
+    protected boolean noGrav;
 
     public void setResistance(float resistance, Game game) {
         if (resistance < 0 || resistance > 1)

@@ -9,8 +9,13 @@ public abstract class Physics {
 
     public void update(Game game) {
         for (PhysicalPositional ph : game.getActivePhysicalPositionals()) {
-            ph.changeVelocityWithResistance(getHorizontalResistance(ph), getVerticalResistance(ph));
-            ph.changePosByVelocity();
+            if (ph.noVelo) {
+                ph.velocityX = 0;
+                ph.velocityY = 0;
+            } else {
+                ph.changeVelocityWithResistance(getHorizontalResistance(ph), getVerticalResistance(ph));
+                ph.changePosByVelocity();
+            }
         }
         collision.update(game);
     }

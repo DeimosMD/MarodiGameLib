@@ -73,8 +73,12 @@ public final class Collision {
 
     private float getHorizontalCollisionOffset(PhysicalPositional o1, PhysicalPositional o2) {
         float x = 0;
-        float r1 = 1 / (1 - physics.getHorizontalResistance(o1));
-        float r2 = 1 / (1 - physics.getHorizontalResistance(o2));
+        float r1 = 0;
+        if (physics.getHorizontalResistance(o1) != 1)
+            r1 = 1 / (1 - physics.getHorizontalResistance(o1));
+        float r2 = 0;
+        if (physics.getHorizontalResistance(o2) != 1)
+            r2 = 1 / (1 - physics.getHorizontalResistance(o2));
         for (Hitbox h1 : o1.hitbox)
             for (Hitbox h2 : o2.hitbox) {
                 if (rangesCollide(h1.getBottomSide(o1.getY()), h1.getTopSide(o1.getY()),
@@ -236,7 +240,7 @@ public final class Collision {
             throw new InstantiationException();
         }
 
-        boolean col(PhysicalPositional pushed, PhysicalPositional pusher, int direction) {
+        boolean col(PhysicalPositional pusher, PhysicalPositional pushed, int direction) {
             boolean[] b = collision.monoCollide(pushed, pusher, direction);
             if (b[1]) {
                 pushed.velocityY = pusher.velocityY;

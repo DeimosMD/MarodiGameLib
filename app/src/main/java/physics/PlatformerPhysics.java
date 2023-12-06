@@ -12,7 +12,8 @@ public class PlatformerPhysics extends Physics {
     @Override
     public void update(Game game) {
         for (PhysicalPositional ph : game.getActivePhysicalPositionals())
-            ph.velocityY -= ph.getWorld().getGravity(game) * game.getFrameTime();
+            if (!(ph.noVelo || ph.noGrav))
+                ph.velocityY -= ph.getWorld().getGravity(game) * game.getFrameTime();
         super.update(game);
     }
 
