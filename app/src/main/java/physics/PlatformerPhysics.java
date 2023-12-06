@@ -6,13 +6,13 @@ public class PlatformerPhysics extends Physics {
 
     private float baseVerticalAirResistance;
     private float baseHorizontalAirResistance;
-    private float gravity = 1;
+    private float gravity = 0.0f;
 
 
     @Override
     public void update(Game game) {
         for (PhysicalPositional ph : game.getActivePhysicalPositionals())
-            ph.velocityY -= gravity;
+            ph.velocityY -= ph.getWorld().getGravity(game) * game.getFrameTime();
         super.update(game);
     }
 

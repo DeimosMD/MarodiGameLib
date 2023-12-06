@@ -17,9 +17,18 @@ public abstract class PhysicalPositional extends Positional {
     protected float mass = 1;
 
     public void setResistance(float resistance, Game game) {
-        if (!(game.getPhysics() instanceof RoamerPhysics)) throw (new IllegalArgumentException());
-        if (resistance < 0 || resistance > 1) throw (new IllegalArgumentException());
-        this.resistance = resistance;
+        if (resistance < 0 || resistance > 1)
+            throw (new IllegalArgumentException());
+        if (game.getPhysics() instanceof RoamerPhysics) {
+            this.resistance = resistance;
+            return;
+        }
+        else if (game.getPhysics() instanceof PlatformerPhysics) {
+            this.verticalAirResistance = resistance;
+            this.horizontalAirResistance = resistance;
+            return;
+        }
+        throw new IllegalArgumentException();
     }
 
     public void setVerticalAirResistance(float resistance, Game game) {
