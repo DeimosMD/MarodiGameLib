@@ -13,11 +13,17 @@ public class Camera (
     private val graphicsPanel get() = game.graphicsPanel
 
     private fun toScreenX(inX: Float): Int {
-        return (inX + (runtimeSettings.screenWidth / 2 - x)).toInt()
+        return if (runtimeSettings.drawFromCenter)
+                (inX + (runtimeSettings.screenWidth / 2 - x)).toInt()
+        else
+                (inX - x).toInt()
     }
 
     private fun toScreenY(inY: Float): Int {
-        return (-inY + (runtimeSettings.screenHeight / 2 + y)).toInt()
+        return if (runtimeSettings.drawFromCenter)
+                (-inY + (runtimeSettings.screenHeight / 2 + y)).toInt()
+        else
+                (-inY + y + runtimeSettings.screenHeight).toInt()
     }
 
     public fun drawImage(img: BufferedImage?, x: Float, y: Float) {
