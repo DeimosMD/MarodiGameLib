@@ -24,7 +24,7 @@ class App extends Game {
     Player player = new Player();
 
     App() {
-        getCurrentWorld().getVector2D().add(player);
+        getCurrentWorld().add(player);
     }
 }
 ```
@@ -33,14 +33,17 @@ package org.game;
 
 import component.sprite.Sprite;
 import control.Game;
+import control.KeyHandler;
+
 import java.awt.*;
-import static java.awt.event.KeyEvent.*;
 
 class Player extends Sprite {
 
     @Override
     public void start(Game game) {
-        setResistance(0.1, game);
+        setResistance(0.1f, game);
+        x = 500;
+        y = 500;
     }
 
     @Override
@@ -51,13 +54,13 @@ class Player extends Sprite {
     @Override
     public void update(Game game) {
         double acc = 100;
-        if (game.keyHandler.isPressed(VK_UP))
+        if (game.keyHandler.isPressed(KeyHandler.OF_UP))
             velocityY += acc * game.getFrameTime();
-        if (game.keyHandler.isPressed(VK_DOWN))
+        if (game.keyHandler.isPressed(KeyHandler.OF_DOWN))
             velocityY -= acc * game.getFrameTime();
-        if (game.keyHandler.isPressed(VK_LEFT))
+        if (game.keyHandler.isPressed(KeyHandler.OF_LEFT))
             velocityX -= acc * game.getFrameTime();
-        if (game.keyHandler.isPressed(VK_RIGHT))
+        if (game.keyHandler.isPressed(KeyHandler.OF_RIGHT))
             velocityX += acc * game.getFrameTime();
     }
 }
@@ -74,9 +77,10 @@ public class Main {
     }
 }
 ```
-Well, How does this work? First off, the _start_ method sets the resistance of
+Well, How does this work? First off, the _start_ method sets the position to 
+(500, 500) and sets the resistance of
 the sprites to 0.1 to slow it down by 10% every frame. The _draw_ method calls
 a method from the camera object to draw a 50x50 white rectangle at the position
-of the sprite. And lastly, the _update_ method checks if specific arrow keys are
+of the sprite. And lastly, the _update_ method checks if specific sets of keys are
 being pressed to determine how to accelerate by changing the velocity by the
 acceleration multiplied by the time the most recent frame took.
