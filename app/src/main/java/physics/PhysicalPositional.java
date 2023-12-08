@@ -5,18 +5,28 @@ import control.Game;
 
 public abstract class PhysicalPositional extends Positional {
 
-    private float resistance;
-    private float verticalAirResistance;
-    private float horizontalAirResistance;
-    private float frictionalResistance;
+    private float resistance; // used for roamer Physics
+    private float verticalAirResistance; // used for platformer physics
+    private float horizontalAirResistance; // used for Platformer physics
+    private float frictionalResistance; // used for platformer or roamer physics
     int verticalCollision;
     int horizontalCollision;
-    protected Hitbox[] hitbox =  { new Hitbox(0, 0, 0, 0) };
+    protected Hitbox[] hitbox =  {};
     protected float velocityX = 0;
     protected float velocityY = 0;
     protected float mass = 1;
-    protected boolean noVelo;
-    protected boolean noGrav;
+    protected boolean noVelo; // disables velocity
+    protected boolean noGrav; // disables gravity
+
+    // Points at which the object will collide with and scripts that can be ran at these points
+    protected Float leftStoppagePoint = null;
+    protected Float rightStoppagePoint = null;
+    protected Float downStoppagePoint = null;
+    protected Float upStoppagePoint = null;
+    protected OnPhysicalPositionalStoppage leftStoppageScript = null;
+    protected OnPhysicalPositionalStoppage rightStoppageScript = null;
+    protected OnPhysicalPositionalStoppage downStoppageScript = null;
+    protected OnPhysicalPositionalStoppage upStoppageScript = null;
 
     public void setResistance(float resistance, Game game) {
         if (resistance < 0 || resistance > 1)
@@ -133,5 +143,37 @@ public abstract class PhysicalPositional extends Positional {
 
     public void setMass(float mass) {
         this.mass = mass;
+    }
+
+    public Float getLeftStoppagePoint() {
+        return leftStoppagePoint;
+    }
+
+    public void setLeftStoppagePoint(Float leftStoppagePoint) {
+        this.leftStoppagePoint = leftStoppagePoint;
+    }
+
+    public Float getRightStoppagePoint() {
+        return rightStoppagePoint;
+    }
+
+    public void setRightStoppagePoint(Float rightStoppagePoint) {
+        this.rightStoppagePoint = rightStoppagePoint;
+    }
+
+    public Float getDownStoppagePoint() {
+        return downStoppagePoint;
+    }
+
+    public void setDownStoppagePoint(Float downStoppagePoint) {
+        this.downStoppagePoint = downStoppagePoint;
+    }
+
+    public Float getUpStoppagePoint() {
+        return upStoppagePoint;
+    }
+
+    public void setUpStoppagePoint(Float upStoppagePoint) {
+        this.upStoppagePoint = upStoppagePoint;
     }
 }

@@ -129,22 +129,34 @@ public final class Collision {
     }
 
     private record TypeRelation(
-            Class<?> t1, Class<?> t2, int direction, CollisionType collisionType
+            Class<?> t1,
+            Class<?> t2,
+            int direction,
+            CollisionType collisionType
     ) {
     }
 
     private record ObjectRelation(
-            PhysicalPositional o1, PhysicalPositional o2, int direction, CollisionType collisionType
+            PhysicalPositional o1,
+            PhysicalPositional o2,
+            int direction,
+            CollisionType collisionType
     ) {
     }
 
     private record TypeObjectRelation(
-            Class<?> t, PhysicalPositional o, int direction, CollisionType collisionType
+            Class<?> t,
+            PhysicalPositional o,
+            int direction,
+            CollisionType collisionType
     ) {
     }
 
     private record ObjectTypeRelation (
-            PhysicalPositional o, Class<?> t, int direction, CollisionType collisionType
+            PhysicalPositional o,
+            Class<?> t,
+            int direction,
+            CollisionType collisionType
     ) {
     }
 
@@ -205,24 +217,26 @@ public final class Collision {
     }
 
     void update(Game game) {
-        for (PhysicalPositional ph : game.getActivePhysicalPositionals()) {
+        Vector<PhysicalPositional> physList = game.getActivePhysicalPositionals();
+        for (PhysicalPositional ph : physList) {
             ph.horizontalCollision = 0;
             ph.verticalCollision = 0;
+            checkHardStoppages(ph);
         }
         for (ObjectRelation r : objectRelationList)
             r.collisionType().col(r.o1(), r.o2(), r.direction());
         for (TypeObjectRelation r : typeObjectRelationList)
-            for (PhysicalPositional ph : game.getActivePhysicalPositionals())
+            for (PhysicalPositional ph : physList)
                 if (ph.getClass() == r.t())
                     r.collisionType().col(ph, r.o(), r.direction());
         for (ObjectTypeRelation r : objectTypeRelationList)
-            for (PhysicalPositional ph : game.getActivePhysicalPositionals())
+            for (PhysicalPositional ph : physList)
                 if (ph.getClass() == r.t())
                     r.collisionType().col(r.o(), ph, r.direction());
         for (TypeRelation r : typeRelationList)
-            for (PhysicalPositional ph1 : game.getActivePhysicalPositionals())
+            for (PhysicalPositional ph1 : physList)
                 if (ph1.getClass() == r.t1())
-                    for (PhysicalPositional ph2 : game.getActivePhysicalPositionals())
+                    for (PhysicalPositional ph2 : physList)
                          if (ph2.getClass() == r.t2())
                             r.collisionType().col(ph1, ph2, r.direction());
     }
@@ -364,5 +378,54 @@ public final class Collision {
         if (bounciness < 0)
             throw (new IllegalArgumentException());
         return new MonoBounce(this, bounciness);
+    }
+
+    private void checkHardStoppages(PhysicalPositional ph) {
+        for (Hitbox h : ph.hitbox) {
+            if (ph.rightStoppagePoint != null) {
+                Float r = h.getRightSide(ph.getX());
+                if (r > ph.rightStoppagePoint) {
+                    ph.incX(ph.rightStoppagePoint - r);
+                    ph.horizontalCollision = RIGHT;
+                    if (ph.rightStoppageScript == null)
+                        ph.setVelocityX(0);
+                    else
+                        ph.rightStoppageScript.onPhysicalPositionalStoppage(ph);
+                }
+            }
+            if (ph.leftStoppagePoint != null) {
+                Float r = h.getLeftSide(ph.getX());
+                if (r < ph.leftStoppagePoint) {
+                    ph.incX(ph.leftStoppagePoint - r);
+                    ph.horizontalCollision = LEFT;
+                    if (ph.leftStoppageScript == null)
+                        ph.setVelocityX(0);
+                    else
+                        ph.leftStoppageScript.onPhysicalPositionalStoppage(ph);
+                }
+            }
+            if (ph.upStoppagePoint != null) {
+                Float r = h.getTopSide(ph.getY());
+                if (r > ph.upStoppagePoint) {
+                    ph.incY(ph.upStoppagePoint - r);
+                    ph.verticalCollision = UP;
+                    if (ph.upStoppageScript == null)
+                        ph.setVelocityY(0);
+                    else
+                        ph.upStoppageScript.onPhysicalPositionalStoppage(ph);
+                }
+            }
+            if (ph.downStoppagePoint != null) {
+                Float r = h.getBottomSide(ph.getY());
+                if (r < ph.downStoppagePoint) {
+                    ph.incY(ph.downStoppagePoint - r);
+                    ph.verticalCollision = DOWN;
+                    if (ph.downStoppageScript == null)
+                        ph.setVelocityY(0);
+                    else
+                        ph.downStoppageScript.onPhysicalPositionalStoppage(ph);
+                }
+            }
+        }
     }
 }
