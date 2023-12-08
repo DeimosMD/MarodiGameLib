@@ -1,6 +1,7 @@
 package control
 
 import java.awt.event.KeyEvent
+import java.awt.event.KeyEvent.*
 import java.awt.event.KeyListener
 import java.util.*
 
@@ -30,17 +31,17 @@ class KeyHandler (
 
 
     public fun isPressed(keyCode: Int): Boolean {
-        return currentTickPressed.contains(keyCode)
+        return containsKeyOrKeyOfSet(currentTickPressed, keyCode)
     }
 
 
     public fun downPressed(keyCode: Int): Boolean {
-        return currentTickPressed.contains(keyCode) && !lastTickPressed.contains(keyCode)
+        return containsKeyOrKeyOfSet(currentTickPressed, keyCode) && !containsKeyOrKeyOfSet(lastTickPressed, keyCode)
     }
 
 
     public fun wasReleased(keyCode: Int): Boolean {
-        return !currentTickPressed.contains(keyCode) && lastTickPressed.contains(keyCode)
+        return !containsKeyOrKeyOfSet(currentTickPressed, keyCode) && containsKeyOrKeyOfSet(lastTickPressed, keyCode)
     }
 
     override fun keyPressed(e: KeyEvent) {
@@ -55,4 +56,22 @@ class KeyHandler (
     }
 
     override fun keyTyped(e: KeyEvent) {}
+
+    private fun containsKeyOrKeyOfSet(v: Vector<Int>, k: Int): Boolean {
+        when (k) {
+            OF_DOWN -> return v.contains(VK_S) || v.contains(VK_DOWN)
+            OF_UP -> return v.contains(VK_W) || v.contains(VK_UP)
+            OF_LEFT -> return v.contains(VK_A) || v.contains(VK_LEFT)
+            OF_RIGHT -> return v.contains(VK_D) || v.contains(VK_RIGHT)
+        }
+        return v.contains(k)
+    }
+
+    companion object {
+        // key sets
+        public const val OF_UP: Int = 1201
+        public const val OF_DOWN: Int = 1202
+        public const val OF_RIGHT: Int = 1203
+        public const val OF_LEFT: Int = 1204
+    }
 }
