@@ -62,7 +62,7 @@ public open class Game {
         currentWorld = World()
     }
 
-    public fun launch() {
+    public open fun launch() {
         graphicsPanel.init()
         gameHandler.init()
         keyHandler.init()
