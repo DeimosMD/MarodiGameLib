@@ -20,7 +20,9 @@ public open class Game {
     public var screen: Screen? = null
         private set
     public lateinit var loader: Loader
-    public var currentWorld = World()
+    public var currentWorld: World
+        get() = camera.world
+        set(value) {camera.world = value}
     public var frameTime: Float = 0.0F
         internal set
     public var physics: Physics = RoamerPhysics()
@@ -40,6 +42,15 @@ public open class Game {
         this.physics = physics
     }
 
+    public constructor(world: World) : this() {
+        currentWorld = world
+    }
+
+    public constructor(physics: Physics, world: World) : this() {
+        this.physics = physics
+        currentWorld = world
+    }
+
     private fun indirectConstruction() {
         graphicsPanel = GraphicsPanel(this)
         gameHandler = GameHandler(this)
@@ -48,6 +59,7 @@ public open class Game {
         camera = Camera(this)
         screen = Screen(runtimeSettings)
         loader = Loader(this)
+        currentWorld = World()
     }
 
     public fun launch() {

@@ -51,7 +51,6 @@ public abstract class Positional {
         return "("+x+", "+y+")";
     }
 
-    // Used by lib user
     public World getWorld() {
         return world;
     }

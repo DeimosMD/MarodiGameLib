@@ -5,7 +5,7 @@ import control.Game
 import java.awt.Color
 import java.awt.image.BufferedImage
 
-public class Camera (
+public class Camera internal constructor (
     private val game: Game
 ) : Positional() {
 
