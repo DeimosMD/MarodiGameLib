@@ -17,9 +17,9 @@ class GraphicsPanel (
     internal var graphics2D = null as Graphics2D?
 
     fun init() {
-        this.isDoubleBuffered = true
-        this.isFocusable = true
-        this.background = runtimeSettings.backgroundColor
+        isDoubleBuffered = true
+        isFocusable = true
+        background = runtimeSettings.backgroundColor
         screen?.add(this)
     }
 

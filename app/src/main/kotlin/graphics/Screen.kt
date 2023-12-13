@@ -8,9 +8,9 @@ class Screen internal constructor(
 ) : JFrame(runtimeSettings.windowTitle) {
 
     fun init() {
-        this.defaultCloseOperation = EXIT_ON_CLOSE
-        this.setSize(runtimeSettings.screenWidth, runtimeSettings.screenHeight)
-        this.isResizable = runtimeSettings.isResizable
-        this.isVisible = true
+        defaultCloseOperation = EXIT_ON_CLOSE
+        setSize(runtimeSettings.screenWidth, runtimeSettings.screenHeight)
+        isResizable = runtimeSettings.isResizable
+        isVisible = true
     }
 }
