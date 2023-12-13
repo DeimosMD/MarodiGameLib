@@ -66,6 +66,7 @@ public open class Game {
         graphicsPanel.init()
         gameHandler.init()
         keyHandler.init()
+        screen?.init()
         gameHandler.thread.start()
     }
 

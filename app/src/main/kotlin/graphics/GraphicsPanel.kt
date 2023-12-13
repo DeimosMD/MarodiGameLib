@@ -21,7 +21,6 @@ class GraphicsPanel (
         this.isFocusable = true
         this.background = runtimeSettings.backgroundColor
         screen?.add(this)
-        screen?.isVisible = true
     }
 
 
