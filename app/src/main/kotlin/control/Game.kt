@@ -1,5 +1,6 @@
 package control
 
+import component.sprite.Sprite
 import component.world.World
 import graphics.Camera
 import graphics.GraphicsPanel
@@ -72,5 +73,9 @@ public open class Game {
 
     public fun close() {
         screen = null
+    }
+
+    public fun addSprite(s: Sprite) {
+        currentWorld.add(s)
     }
 }
