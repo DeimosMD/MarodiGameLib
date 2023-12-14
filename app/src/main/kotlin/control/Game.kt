@@ -15,10 +15,10 @@ public open class Game {
     internal lateinit var graphicsPanel: GraphicsPanel
         private set
     internal lateinit var gameHandler: GameHandler
-    public var runtimeSettings = RuntimeSettings()
+    public var runtimeSettings: RuntimeSettings
     public lateinit var keyHandler: KeyHandler
     public lateinit var camera: Camera
-    public var screen = Screen(runtimeSettings)
+    public var screen: Screen
         private set
     public lateinit var loader: Loader
     public var currentWorld: World
@@ -38,6 +38,8 @@ public open class Game {
     }
 
     public constructor() {
+        runtimeSettings = RuntimeSettings()
+        screen = Screen(runtimeSettings)
         indirectConstruction()
     }
 
