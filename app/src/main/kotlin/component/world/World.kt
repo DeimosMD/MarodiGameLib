@@ -26,7 +26,10 @@ public open class World : Vector2D() {
 
     fun draw(game: Game) {
         for (o in this)
-            if (o is Drawable)
+            if (o is Sprite) {
+                if (o.isVisible)
+                    o.draw(game)
+            } else if (o is Drawable)
                 o.draw(game)
     }
 
