@@ -58,7 +58,6 @@ public open class Game {
     private fun indirectConstruction() {
         graphicsPanel = GraphicsPanel(this)
         gameHandler = GameHandler(this)
-        runtimeSettings = RuntimeSettings()
         keyHandler = KeyHandler(this)
         camera = Camera(this)
         loader = Loader(this)
