@@ -20,7 +20,7 @@ class GraphicsPanel (
         isDoubleBuffered = true
         isFocusable = true
         background = runtimeSettings.backgroundColor
-        screen?.add(this)
+        screen.add(this)
     }
 
 

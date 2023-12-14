@@ -8,7 +8,6 @@ class GameHandler (
     private val keyHandler get() = game.keyHandler
     private val loader get() = game.loader
     private val runtimeSettings get() = game.runtimeSettings
-    private val screen get() = game.screen
     private val world get() = game.currentWorld
     private val physics get() = game.physics
 
@@ -24,7 +23,7 @@ class GameHandler (
         trackFPS.increaseNum()
         var startTimeNS = System.nanoTime() // System time in nanoseconds
         var sleepTimeMS: Long // Time to sleep
-        while (screen != null) {
+        while (game.running) {
             sleepTimeMS =
                         (((1.0 / (runtimeSettings.FPS * 2 - trackFPS.rate)
                         * 1_000_000_000).toLong())

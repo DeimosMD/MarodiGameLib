@@ -15,10 +15,10 @@ public open class Game {
     internal lateinit var graphicsPanel: GraphicsPanel
         private set
     internal lateinit var gameHandler: GameHandler
-    public var runtimeSettings: RuntimeSettings = RuntimeSettings()
+    public var runtimeSettings = RuntimeSettings()
     public lateinit var keyHandler: KeyHandler
     public lateinit var camera: Camera
-    public var screen: Screen? = null
+    public var screen = Screen(runtimeSettings)
         private set
     public lateinit var loader: Loader
     public var currentWorld: World
@@ -29,6 +29,8 @@ public open class Game {
     public var physics: Physics = RoamerPhysics()
         private set
     public val statDraw get() = graphicsPanel.graphics2D
+    public var running = true
+        private set
     public val activePhysicalPositionals: Vector<PhysicalPositional> get() {
         val v = Vector<PhysicalPositional>()
         for (p in currentWorld) if (p is PhysicalPositional) v.add(p)
@@ -58,7 +60,6 @@ public open class Game {
         runtimeSettings = RuntimeSettings()
         keyHandler = KeyHandler(this)
         camera = Camera(this)
-        screen = Screen(runtimeSettings)
         loader = Loader(this)
         currentWorld = World()
     }
@@ -66,13 +67,13 @@ public open class Game {
     public open fun launch() {
         graphicsPanel.init()
         keyHandler.init()
-        screen?.init()
+        screen.init()
         gameHandler.init()
         gameHandler.thread.start()
     }
 
-    public fun close() {
-        screen = null
+    public open fun close() {
+        running = false
     }
 
     public fun addSprite(s: Sprite) {
