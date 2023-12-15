@@ -1,6 +1,8 @@
 package control
 
+import component.sprite.Drawable
 import component.sprite.Sprite
+import component.sprite.Updatable
 import component.world.World
 import graphics.Camera
 import graphics.GraphicsPanel
@@ -36,6 +38,9 @@ public open class Game {
         for (p in currentWorld) if (p is PhysicalPositional) v.add(p)
         return v
     }
+    public val updateList = Vector<Updatable>()
+    public val drawList = Vector<Drawable>()
+
 
     public constructor() {
         screen = Screen(runtimeSettings)

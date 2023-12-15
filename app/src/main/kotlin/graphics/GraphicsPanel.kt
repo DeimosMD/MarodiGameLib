@@ -28,6 +28,9 @@ class GraphicsPanel (
         super.paint(g)
         graphics2D = g as Graphics2D
         world.draw(game)
+        if (!game.drawList.isEmpty())
+            for (drawable in game.drawList)
+                drawable.draw(game);
         graphics2D!!.dispose()
     }
 }

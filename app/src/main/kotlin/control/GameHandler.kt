@@ -42,6 +42,9 @@ class GameHandler (
             keyHandler.update()
             loader.update()
             world.update(game)
+            if (!game.updateList.isEmpty())
+                for (updatable in game.updateList)
+                    updatable.update(game);
             physics.update(game)
             graphicsPanel.repaint()
             System.gc()
