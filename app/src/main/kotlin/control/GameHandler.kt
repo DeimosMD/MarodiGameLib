@@ -13,7 +13,7 @@ class GameHandler (
 
     val thread = Thread(this)
     private lateinit var trackFPS: PerformanceTracker
-    private var frameNum = 0
+
 
     fun init() {
         trackFPS = PerformanceTracker("Tracked FPS", runtimeSettings.isPrintFramesPerSecond)
@@ -36,7 +36,7 @@ class GameHandler (
                 }
             }
             trackFPS.increaseNum()
-            frameNum++
+            game.frameNum++
             game.frameTime = (System.nanoTime() - startTimeNS).toFloat() / 1_000_000_000F
             startTimeNS = System.nanoTime()
             keyHandler.update()

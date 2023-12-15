@@ -40,6 +40,8 @@ public open class Game {
     }
     public val updateList = Vector<Updatable>()
     public val drawList = Vector<Drawable>()
+    public var frameNum = 0
+        internal set
 
 
     public constructor() {
