@@ -17,7 +17,7 @@ Below also an example of how to make a basic _Player_ sprite class.
 ```
 package org.game;
 
-import control.Game;
+import marodi.control.Game;
 
 class App extends Game {
 
@@ -31,9 +31,9 @@ class App extends Game {
 ```
 package org.game;
 
-import component.sprite.Sprite;
-import control.Game;
-import control.KeyHandler;
+import marodi.component.Sprite;
+import marodi.control.Game;
+import marodi.control.KeyHandler;
 
 import java.awt.*;
 
