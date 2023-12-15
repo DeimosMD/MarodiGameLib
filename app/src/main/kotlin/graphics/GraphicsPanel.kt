@@ -30,7 +30,7 @@ class GraphicsPanel (
         world.draw(game)
         if (!game.drawList.isEmpty())
             for (drawable in game.drawList)
-                drawable.draw(game);
+                drawable.draw(game)
         graphics2D!!.dispose()
     }
 }
