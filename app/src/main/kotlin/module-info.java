@@ -8,4 +8,5 @@ module MarodiGameLib.app.main {
     exports marodi.control;
     exports marodi.graphics;
     exports marodi.resource;
+    exports marodi.util;
 }
