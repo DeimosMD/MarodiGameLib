@@ -2,7 +2,6 @@ package marodi.graphics
 
 import marodi.control.RuntimeSettings
 import javax.swing.JFrame
-import javax.swing.WindowConstants.EXIT_ON_CLOSE
 
 class Screen internal constructor(
     private val runtimeSettings: RuntimeSettings
