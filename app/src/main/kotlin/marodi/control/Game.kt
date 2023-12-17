@@ -43,7 +43,7 @@ public open class Game {
     public val drawList = Vector<Drawable>()
     public var frameNum = 0
         internal set
-    public val FPS = gameHandler.trackFPS.rate
+    public val FPS get() = gameHandler.trackFPS.rate
 
     public constructor() {
         screen = Screen(runtimeSettings)
