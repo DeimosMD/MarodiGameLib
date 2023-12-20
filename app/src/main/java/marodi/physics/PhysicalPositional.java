@@ -119,14 +119,14 @@ public abstract class PhysicalPositional extends Positional {
         this.velocityY += inc;
     }
 
-    void changePosByVelocity() {
-        x += velocityX;
-        y += velocityY;
+    void changePosByVelocity(float frameTime) {
+        x += velocityX * frameTime;
+        y += velocityY * frameTime;
     }
 
-    void changeVelocityWithResistance(float resistanceX, float resistanceY) {
-        velocityX *= 1 - resistanceX;
-        velocityY *= 1 - resistanceY;
+    void changeVelocityWithResistance(float resistanceX, float resistanceY, float frameTime) {
+        velocityX *= 1 - resistanceX * frameTime;
+        velocityY *= 1 - resistanceY * frameTime;
     }
 
     protected int getVerticalCollision() {

@@ -13,8 +13,8 @@ public abstract class Physics {
                 ph.velocityX = 0;
                 ph.velocityY = 0;
             } else {
-                ph.changeVelocityWithResistance(getHorizontalResistance(ph), getVerticalResistance(ph));
-                ph.changePosByVelocity();
+                ph.changeVelocityWithResistance(getHorizontalResistance(ph), getVerticalResistance(ph), game.getFrameTime());
+                ph.changePosByVelocity(game.getFrameTime());
             }
         }
         collision.update(game);
