@@ -17,11 +17,6 @@ public final class Collision {
     private final Vector<ObjectRelation> objectRelationList = new Vector<>();
     private final Vector<TypeObjectRelation> typeObjectRelationList = new Vector<>();
     private final Vector<ObjectTypeRelation> objectTypeRelationList = new Vector<>();
-    private final Physics physics;
-
-    public Collision(Physics physics) {
-        this.physics = physics;
-    }
 
     // checks if two one dimensional ranges have any common solutions and returns true if there are any
     private boolean rangesCollide(float r1a, float r1b, float r2a, float r2b) {
@@ -50,19 +45,17 @@ public final class Collision {
     // else return 0
     float getVerticalCollisionOffset(PhysicalPositional o1, PhysicalPositional o2) {
         float y = 0;
-        float r1 = 1 / (1 - physics.getVerticalResistance(o1));
-        float r2 = 1 / (1 - physics.getVerticalResistance(o2));
         for (Hitbox h1 : o1.hitbox)
             for (Hitbox h2 : o2.hitbox) {
                 if (rangesCollide(h1.getLeftSide(o1.getX()), h1.getRightSide(o1.getX()),
                         h2.getLeftSide(o2.getX()), h2.getRightSide(o2.getX()))) {
                     if (h2.getTopSide(o2.getY()) > h1.getBottomSide(o1.getY())
-                            && h2.getTopSide(o2.getY() - o2.getVelocityY() * r2) <= h1.getBottomSide(o1.getY() - o1.getVelocityY() * r1)) {
+                            && h2.getTopSide(o2.prevY) <= h1.getBottomSide(o1.prevY)) {
                         float a = h2.getTopSide(o2.getY()) - h1.getBottomSide(o1.getY());
                         if (Math.abs(y) < Math.abs(a))
                             y = a;
                     } else if (h2.getBottomSide(o2.getY()) < h1.getTopSide(o1.getY())
-                            && h2.getBottomSide(o2.getY() - o2.getVelocityY() * r2) >= h1.getTopSide(o1.getY() - o1.getVelocityY() * r1)) {
+                            && h2.getBottomSide(o2.prevY) >= h1.getTopSide(o1.prevY)) {
                         float a = h2.getBottomSide(o2.getY()) - h1.getTopSide(o1.getY());
                         if (Math.abs(y) < Math.abs(a))
                             y = a;
@@ -74,19 +67,17 @@ public final class Collision {
 
     private float getHorizontalCollisionOffset(PhysicalPositional o1, PhysicalPositional o2) {
         float x = 0;
-        float r1 = 1 / (1 - physics.getHorizontalResistance(o1));
-        float r2 = 1 / (1 - physics.getHorizontalResistance(o2));
         for (Hitbox h1 : o1.hitbox)
             for (Hitbox h2 : o2.hitbox) {
                 if (rangesCollide(h1.getBottomSide(o1.getY()), h1.getTopSide(o1.getY()),
                         h2.getBottomSide(o2.getY()), h2.getTopSide(o2.getY()))) {
                     if (h2.getRightSide(o2.getX()) > h1.getLeftSide(o1.getX())
-                            && h2.getRightSide(o2.getX() - o2.getVelocityX() * r2) <= h1.getLeftSide(o1.getX() - o1.getVelocityX() * r1)) {
+                            && h2.getRightSide(o2.prevX) <= h1.getLeftSide(o1.prevX)) {
                         float a = h2.getRightSide(o2.getX()) - h1.getLeftSide(o1.getX());
                         if (Math.abs(x) < Math.abs(a))
                             x = a;
                     } else if (h2.getLeftSide(o2.getX()) < h1.getRightSide(o1.getX())
-                            && h2.getLeftSide(o2.getX() - o2.getVelocityX() * r2) >= h1.getRightSide(o1.getX() - o1.getVelocityX() * r1)) {
+                            && h2.getLeftSide(o2.prevX) >= h1.getRightSide(o1.prevX)) {
                         float a = h2.getLeftSide(o2.getX()) - h1.getRightSide(o1.getX());
                         if (Math.abs(x) < Math.abs(a))
                             x = a;

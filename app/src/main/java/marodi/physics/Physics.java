@@ -4,7 +4,7 @@ import marodi.control.Game;
 
 public abstract class Physics {
 
-    public final Collision collision = new Collision(this);
+    public final Collision collision = new Collision();
     float baseFrictionalResistance;
 
     public void update(Game game) {
@@ -13,6 +13,8 @@ public abstract class Physics {
                 ph.velocityX = 0;
                 ph.velocityY = 0;
             } else {
+                ph.prevX = ph.getX();
+                ph.prevY = ph.getY();
                 ph.changeVelocityWithResistance(getHorizontalResistance(ph), getVerticalResistance(ph), game.getFrameTime());
                 ph.changePosByVelocity(game.getFrameTime());
             }

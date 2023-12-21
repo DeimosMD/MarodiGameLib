@@ -35,10 +35,10 @@ public open class Game {
         private set
     public val activePhysicalPositionals: Vector<PhysicalPositional>
         get() {
-        val v = Vector<PhysicalPositional>()
-        for (p in currentWorld) if (p is PhysicalPositional) v.add(p)
-        return v
-    }
+            val v = Vector<PhysicalPositional>()
+            for (p in currentWorld) if (p is PhysicalPositional) v.add(p)
+            return v
+        }
     public val updateList = Vector<Updatable>()
     public val drawList = Vector<Drawable>()
     public var frameNum = 0

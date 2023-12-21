@@ -28,6 +28,10 @@ public abstract class PhysicalPositional extends Positional {
     protected OnPhysicalPositionalStoppage downStoppageScript = null;
     protected OnPhysicalPositionalStoppage upStoppageScript = null;
 
+    // Position in previous frame; used for calculating collision
+    float prevX;
+    float prevY;
+
     public void setResistance(float resistance, Game game) {
         if (resistance < 0 || resistance > 1)
             throw (new IllegalArgumentException());
