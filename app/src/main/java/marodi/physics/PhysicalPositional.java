@@ -18,7 +18,7 @@ public abstract class PhysicalPositional extends Positional {
     protected boolean noVelo; // disables velocity
     protected boolean noGrav; // disables gravity
 
-    // Points at which the object will collide with and scripts that can be ran at these points
+    // Points at which the object will collide with and scripts that can run at these points
     protected Float leftStoppagePoint = null;
     protected Float rightStoppagePoint = null;
     protected Float downStoppagePoint = null;
@@ -125,8 +125,8 @@ public abstract class PhysicalPositional extends Positional {
     }
 
     void changeVelocityWithResistance(float resistanceX, float resistanceY, float frameTime) {
-        velocityX *= 1 - resistanceX * frameTime;
-        velocityY *= 1 - resistanceY * frameTime;
+        velocityX *= Math.pow(1 - resistanceX, frameTime);
+        velocityY *= Math.pow(1 - resistanceX, frameTime);
     }
 
     protected int getVerticalCollision() {
