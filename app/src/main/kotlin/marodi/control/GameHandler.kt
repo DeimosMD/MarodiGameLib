@@ -19,12 +19,25 @@ class GameHandler (
     }
 
     override fun run() {
-        trackFPS.increaseNum()
-        var startTimeNS = System.nanoTime() // System time in nanoseconds
+
+        var startTimeNS = System.nanoTime() // System time in nanoseconds at frame start
         var sleepTimeMS: Long // Time to sleep
-        while (game.running) {
+        var lastUpdateTimeNS = System.nanoTime() // System time in nanoseconds at most recent update call
+        trackFPS.increaseNum()
+
+        fun update() {
+            keyHandler.update()
+            loader.update()
+            world.update(game)
+            if (!game.updateList.isEmpty())
+                for (updatable in game.updateList)
+                    updatable.update(game)
+            physics.update(game)
+        }
+
+        fun sleep() {
             sleepTimeMS =
-                        (((1.0 / (runtimeSettings.FPS * 2 - trackFPS.rate)
+                (((1.0 / (runtimeSettings.FPS * 2 - trackFPS.rate)
                         * 1_000_000_000).toLong())
                         - (System.nanoTime() - startTimeNS)) / 1_000_000
             if (sleepTimeMS > 0) {
@@ -34,18 +47,19 @@ class GameHandler (
                     e.printStackTrace()
                 }
             }
-            trackFPS.increaseNum()
-            game.frameNum++
-            game.frameTime = (System.nanoTime() - startTimeNS).toFloat() / 1_000_000_000F
             startTimeNS = System.nanoTime()
-            keyHandler.update()
-            loader.update()
-            world.update(game)
-            if (!game.updateList.isEmpty())
-                for (updatable in game.updateList)
-                    updatable.update(game)
-            physics.update(game)
-            graphicsPanel.repaint()
+        }
+
+        while (game.running) {
+            sleep()
+            if (trackFPS.rate <= runtimeSettings.FPS) {
+                trackFPS.increaseNum()
+                game.frameNum++
+                game.frameTime = (System.nanoTime() - lastUpdateTimeNS).toFloat() / 1_000_000_000F
+                lastUpdateTimeNS = System.nanoTime()
+                update()
+                graphicsPanel.repaint()
+            }
             System.gc()
             System.runFinalization()
         }
