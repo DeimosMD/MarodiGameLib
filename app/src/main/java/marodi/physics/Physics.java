@@ -34,4 +34,12 @@ public abstract class Physics {
         assert baseFrictionalResistance <= 1 && baseFrictionalResistance >= 0;
         this.baseFrictionalResistance = baseFrictionalResistance;
     }
+
+    static double radiansToDegrees(double radians) {
+        return radians * (180/Math.PI);
+    }
+
+    static double degreesToRadians(double degrees) {
+        return degrees * (Math.PI/180);
+    }
 }

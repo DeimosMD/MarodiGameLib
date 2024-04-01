@@ -33,7 +33,7 @@ public abstract class PhysicalPositional extends Positional {
     float prevY;
 
     // direction in radians
-    private float directionRadians = 0;
+    private double directionRadians = 0;
 
     public void setResistance(float resistance, Game game) {
         if (resistance < 0 || resistance > 1)
@@ -93,6 +93,43 @@ public abstract class PhysicalPositional extends Positional {
     void changeVelocityWithResistance(float resistanceX, float resistanceY, float frameTime) {
         velocityX *= (float) Math.pow(1 - resistanceX, frameTime);
         velocityY *= (float) Math.pow(1 - resistanceY, frameTime);
+    }
+
+    public void faceTowards(float x, float y) {
+        directionRadians = Math.atan2(y-this.y, x-this.x);
+    }
+
+    public void faceTowards(Positional positional) {
+        directionRadians = Math.atan2(positional.getY()-this.y, positional.getX()-this.x);
+    }
+
+    public void accAtAngle(float acc, double degrees, float frameTime) {
+        velocityX += frameTime * acc * (float) Math.cos(Physics.degreesToRadians(degrees));
+        velocityY += frameTime * acc * (float) Math.sin(Physics.degreesToRadians(degrees));
+    }
+
+    public void setVeloAtAngle(float velo, double degrees) {
+        velocityX = velo * (float) Math.cos(Physics.degreesToRadians(degrees));
+        velocityY = velo * (float) Math.sin(Physics.degreesToRadians(degrees));
+    }
+
+    public void accForward(float acc, float frameTime) {
+        velocityX += frameTime * acc * (float) Math.cos(directionRadians);
+        velocityY += frameTime * acc * (float) Math.sin(directionRadians);
+    }
+
+    public void setVeloForward(float velo) {
+        velocityX = velo * (float) Math.cos(directionRadians);
+        velocityY = velo * (float) Math.sin(directionRadians);
+    }
+
+    // Uses hypotenuse formula with the differences of the x values and y values
+    public float distanceTo(float x, float y) {
+        return (float) Math.sqrt(Math.pow(x-this.x, 2) + Math.pow(y-this.y, 2));
+    }
+
+    public float distanceTo(Positional positional) {
+        return (float) Math.sqrt(Math.pow(positional.getX()-this.x, 2) + Math.pow(positional.getY()-this.y, 2));
     }
 
     protected Hitbox[] getHitbox() {
@@ -183,19 +220,23 @@ public abstract class PhysicalPositional extends Positional {
         this.frictionalResistance = frictionalResistance;
     }
 
-    public void setDirectionDegrees(float directionDegrees) {
-        directionRadians = (float) (directionDegrees * (Math.PI/180));
+    public void setDirectionDegrees(double directionDegrees) {
+        directionRadians = Physics.degreesToRadians(directionDegrees);
     }
 
-    public float getDirectionDegrees() {
-        return (float) (directionRadians * (180/Math.PI));
+    public double getDirectionDegrees() {
+        return Physics.radiansToDegrees(directionRadians);
     }
 
-    public float getDirectionRadians() {
+    public void incDirectionDegrees(double directionDegrees) {
+        setDirectionDegrees(getDirectionDegrees() + directionDegrees);
+    }
+
+    public double getDirectionRadians() {
         return directionRadians;
     }
 
-    public void setDirectionRadians(float directionRadians) {
+    public void setDirectionRadians(double directionRadians) {
         this.directionRadians = directionRadians;
     }
 }
