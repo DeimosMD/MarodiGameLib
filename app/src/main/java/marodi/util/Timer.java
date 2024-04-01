@@ -4,6 +4,7 @@ public class Timer {
 
     private double time;
     private double lastTime;
+    private OnTimerStop onTimerStopScript = null;
 
     public Timer() {
         setTime(0);
@@ -13,6 +14,11 @@ public class Timer {
         setTime(t);
     }
 
+    public Timer(double t, OnTimerStop onTimerStopScript) {
+        setTime(t);
+        this.onTimerStopScript = onTimerStopScript;
+    }
+
     public void setTime(double time) {
         this.time = time;
         lastTime = sysTimeSeconds();
@@ -20,8 +26,11 @@ public class Timer {
 
     public void update() {
         double currentTime = sysTimeSeconds();
-        time -= currentTime - lastTime;
+        double prevTime = time;
+        time += currentTime - lastTime;
         lastTime = currentTime;
+        if (prevTime < 0 && time >= 0 && onTimerStopScript != null)
+            onTimerStopScript.onTimerStop();
     }
 
     public double getTime() {

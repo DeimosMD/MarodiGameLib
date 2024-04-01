@@ -4,7 +4,7 @@ import marodi.control.Game;
 
 public abstract class Physics {
 
-    public final Collision collision = new Collision();
+    public final CollisionHandler collisionHandler = new CollisionHandler();
     float baseFrictionalResistance;
 
     public void update(Game game) {
@@ -15,11 +15,11 @@ public abstract class Physics {
             } else {
                 ph.prevX = ph.getX();
                 ph.prevY = ph.getY();
-                ph.changeVelocityWithResistance(getHorizontalResistance(ph), getVerticalResistance(ph), game.getFrameTime());
-                ph.changePosByVelocity(game.getFrameTime());
+                ph.changeVelocityWithResistance(getHorizontalResistance(ph), getVerticalResistance(ph), game.getFrameProportion());
+                ph.changePosByVelocity(game.getFrameProportion());
             }
         }
-        collision.update(game);
+        collisionHandler.update(game);
     }
 
     abstract float getHorizontalResistance(PhysicalPositional ph);
@@ -31,8 +31,7 @@ public abstract class Physics {
     }
 
     public void setBaseFrictionalResistance(float baseFrictionalResistance) {
-        if (baseFrictionalResistance < 0 || baseFrictionalResistance > 1)
-            throw new IllegalArgumentException("baseFrictionalResistance must be '0 <= x <= 1'");
+        assert baseFrictionalResistance <= 1 && baseFrictionalResistance >= 0;
         this.baseFrictionalResistance = baseFrictionalResistance;
     }
 }

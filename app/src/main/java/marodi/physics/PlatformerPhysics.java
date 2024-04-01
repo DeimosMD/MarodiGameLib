@@ -13,13 +13,13 @@ public class PlatformerPhysics extends Physics {
     public void update(Game game) {
         for (PhysicalPositional ph : game.getActivePhysicalPositionals())
             if (!(ph.noVelo || ph.noGrav))
-                ph.velocityY -= ph.getWorld().getGravity(game) * game.getFrameTime();
+                ph.velocityY -= ph.getWorld().getGravity(game) * game.getFrameProportion();
         super.update(game);
     }
 
     float getHorizontalResistance(PhysicalPositional ph) {
         float a;
-        if (ph.verticalCollision != 0)
+        if (ph.verticalCollision != Direction.NONE)
             a = getBaseHorizontalAirResistance() + getBaseFrictionalResistance() + ph.getSpecHorizontalResistance(this);
         else
             a = getBaseHorizontalAirResistance() + ph.getSpecHorizontalResistance(this);

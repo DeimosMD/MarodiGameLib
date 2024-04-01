@@ -26,7 +26,7 @@ public open class Game {
     public var currentWorld: World
         get() = camera.world
         set(value) {camera.world = value}
-    public var frameTime: Float = 0.0F
+    public var frameProportion: Float = 0.0F
         internal set
     public var physics: Physics = RoamerPhysics()
         private set

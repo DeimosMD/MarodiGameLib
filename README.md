@@ -5,7 +5,7 @@ While using it, update/draw methods are written by the game dev,
 and then called by the library when needed. 
 Marodi as well handles physics, collision, and camera scrolling.
 ### Starting to code with the library
-To utilize the library one must create a _Game_ object, 
+To utilize the library, one must create a _Game_ object 
 by either creating an instance of the 
 _Game_ class directly or creating a subclass and creating an instance of that. 
 Creating a _Game_ subclass is not necessary for the basic program made in
@@ -41,27 +41,30 @@ class Player extends Sprite {
 
     @Override
     public void start(Game game) {
-        setResistance(0.1f, game);
+        // sets resistance to 98% per second
+        setResistance(0.98f, game);
+        // sets position
         x = 500;
         y = 500;
     }
 
     @Override
     public void draw(Game game) {
+        // draws 50px wide white square at position of sprite
         game.camera.drawRect(50,50, new Color(255, 255, 255), this);
     }
 
     @Override
     public void update(Game game) {
-        double acc = 100;
+        float acc = 1500; // acc/sec, not considering resistance
         if (game.keyHandler.isPressed(KeyHandler.OF_UP))
-            velocityY += acc * game.getFrameTime();
+            velocityY += acc * game.getFrameProportion();
         if (game.keyHandler.isPressed(KeyHandler.OF_DOWN))
-            velocityY -= acc * game.getFrameTime();
+            velocityY -= acc * game.getFrameProportion();
         if (game.keyHandler.isPressed(KeyHandler.OF_LEFT))
-            velocityX -= acc * game.getFrameTime();
+            velocityX -= acc * game.getFrameProportion();
         if (game.keyHandler.isPressed(KeyHandler.OF_RIGHT))
-            velocityX += acc * game.getFrameTime();
+            velocityX += acc * game.getFrameProportion();
     }
 }
 ```
@@ -79,8 +82,8 @@ public class Main {
 ```
 Well, How does this work? First off, the _start_ method sets the position to 
 (500, 500) and sets the resistance of
-the sprites to 0.1 to slow it down by 10% every frame. The _draw_ method calls
+the sprites to 0.98 to slow it down by 98% every second. The _draw_ method calls
 a method from the camera object to draw a 50x50 white rectangle at the position
-of the sprite. And lastly, the _update_ method checks if specific sets of keys are
-being pressed to determine how to accelerate by changing the velocity by the
-acceleration multiplied by the time the most recent frame took.
+of the sprite. The _update_ method first checks if specific sets of keys are
+being pressed. Lastly, it determines how to accelerate by multiplying the
+acceleration by the time the most recent frame took.

@@ -55,7 +55,10 @@ class GameHandler (
             if (trackFPS.rate <= runtimeSettings.FPS) {
                 trackFPS.increaseNum()
                 game.frameNum++
-                game.frameTime = (System.nanoTime() - lastUpdateTimeNS).toFloat() / 1_000_000_000F
+                game.frameProportion = (System.nanoTime() - lastUpdateTimeNS).toFloat() / 1_000_000_000F
+                if (game.frameProportion > 1) {
+                    game.frameProportion = 1f
+                }
                 lastUpdateTimeNS = System.nanoTime()
                 update()
                 graphicsPanel.repaint()
