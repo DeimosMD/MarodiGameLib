@@ -76,7 +76,8 @@ public class CollisionType {
                     twoWayAdjustY(o1, o2, y);
                 }
             }
-            onCollisionScript.onCollision(o1, o2);
+            if (onCollisionScript != null)
+                onCollisionScript.onCollision(o1, o2);
             return true;
         }
         return false;
