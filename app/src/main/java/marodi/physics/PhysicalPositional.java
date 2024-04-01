@@ -32,6 +32,9 @@ public abstract class PhysicalPositional extends Positional {
     float prevX;
     float prevY;
 
+    // direction in radians
+    private float directionRadians = 0;
+
     public void setResistance(float resistance, Game game) {
         if (resistance < 0 || resistance > 1)
             throw (new IllegalArgumentException());
@@ -82,6 +85,16 @@ public abstract class PhysicalPositional extends Positional {
         throw (new IllegalArgumentException());
     }
 
+    void changePosByVelocity(float frameTime) {
+        x += velocityX * frameTime;
+        y += velocityY * frameTime;
+    }
+
+    void changeVelocityWithResistance(float resistanceX, float resistanceY, float frameTime) {
+        velocityX *= (float) Math.pow(1 - resistanceX, frameTime);
+        velocityY *= (float) Math.pow(1 - resistanceY, frameTime);
+    }
+
     protected Hitbox[] getHitbox() {
         return hitbox;
     }
@@ -112,16 +125,6 @@ public abstract class PhysicalPositional extends Positional {
 
     public void incVelocityY(float inc) {
         this.velocityY += inc;
-    }
-
-    void changePosByVelocity(float frameTime) {
-        x += velocityX * frameTime;
-        y += velocityY * frameTime;
-    }
-
-    void changeVelocityWithResistance(float resistanceX, float resistanceY, float frameTime) {
-        velocityX *= (float) Math.pow(1 - resistanceX, frameTime);
-        velocityY *= (float) Math.pow(1 - resistanceY, frameTime);
     }
 
     protected Direction getVerticalCollision() {
@@ -178,5 +181,21 @@ public abstract class PhysicalPositional extends Positional {
 
     protected void setFrictionalResistance(float frictionalResistance) {
         this.frictionalResistance = frictionalResistance;
+    }
+
+    public void setDirectionDegrees(float directionDegrees) {
+        directionRadians = (float) (directionDegrees * (Math.PI/180));
+    }
+
+    public float getDirectionDegrees() {
+        return (float) (directionRadians * (180/Math.PI));
+    }
+
+    public float getDirectionRadians() {
+        return directionRadians;
+    }
+
+    public void setDirectionRadians(float directionRadians) {
+        this.directionRadians = directionRadians;
     }
 }
