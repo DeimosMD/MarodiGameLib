@@ -3,7 +3,7 @@ package marodi.graphics
 import marodi.control.RuntimeSettings
 import javax.swing.JFrame
 
-class Screen internal constructor(
+class Screen internal constructor (
     private val runtimeSettings: RuntimeSettings
 ) : JFrame() {
 

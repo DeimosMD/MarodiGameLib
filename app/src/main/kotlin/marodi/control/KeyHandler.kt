@@ -11,8 +11,8 @@ class KeyHandler (
 
     private val screen get() = game.screen
 
-    private var lastTickPressed = Vector<Int>() // Keys pressed at the tick before the most recent tick
-    private var currentTickPressed = Vector<Int>() // Keys pressed at the most recent tick
+    private var lastTickPressed = Vector<Int>() // Keys pressed at the tick before the most recent frame
+    private var currentTickPressed = Vector<Int>() // Keys pressed at the most recent frame
     private var realPressed = Vector<Int>() // Keys being held down at the current time
     private var effectivePressed = Vector<Int>() // Keys being held down at current time and any pressed during the current frame
 
