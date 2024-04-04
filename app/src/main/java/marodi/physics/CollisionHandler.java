@@ -1,7 +1,5 @@
 package marodi.physics;
 
-import marodi.control.Game;
-
 import java.util.Vector;
 
 public final class CollisionHandler {
@@ -95,29 +93,53 @@ public final class CollisionHandler {
         return a > 0;
     }
 
-    void update(Game game) {
-        Vector<PhysicalPositional> physList = game.getActivePhysicalPositionals();
+    void updateCollision(Vector<PhysicalPositional> physList) {
         for (PhysicalPositional ph : physList) {
-            ph.horizontalCollision = Direction.NONE;
-            ph.verticalCollision = Direction.NONE;
             checkHardStoppages(ph);
+            ph.colX = ph.getX();
+            ph.colY = ph.getY();
         }
         for (ObjectRelation r : objectRelationList)
-            r.collisionType().collide(r.o1(), r.o2, game);
+            r.collisionType().collide(r.o1(), r.o2);
         for (TypeObjectRelation r : typeObjectRelationList)
             for (PhysicalPositional ph : physList)
                 if (ph.getClass() == r.t())
-                    r.collisionType().collide(ph, r.o, game);
+                    r.collisionType().collide(ph, r.o);
         for (ObjectTypeRelation r : objectTypeRelationList)
             for (PhysicalPositional ph : physList)
                 if (ph.getClass() == r.t())
-                    r.collisionType().collide(r.o(), ph, game);
+                    r.collisionType().collide(r.o(), ph);
         for (TypeRelation r : typeRelationList)
             for (PhysicalPositional ph1 : physList)
                 if (ph1.getClass() == r.t1())
                     for (PhysicalPositional ph2 : physList)
                          if (ph2.getClass() == r.t2())
-                             r.collisionType().collide(ph1, ph2, game);
+                             r.collisionType().collide(ph1, ph2);
+    }
+
+    void updateFriction(Vector<PhysicalPositional> physList, float frameProportion) {
+        for (PhysicalPositional ph : physList) {
+            ph.horizontalCollision = Direction.NONE;
+            ph.verticalCollision = Direction.NONE;
+            ph.colX = ph.getX() + ph.velocityX*frameProportion;
+            ph.colY = ph.getY() + ph.velocityY*frameProportion;
+        }
+        for (ObjectRelation r : objectRelationList)
+            r.collisionType().applyFriction(r.o1(), r.o2(), frameProportion);
+        for (TypeObjectRelation r : typeObjectRelationList)
+            for (PhysicalPositional ph : physList)
+                if (ph.getClass() == r.t())
+                    r.collisionType().applyFriction(ph, r.o(), frameProportion);
+        for (ObjectTypeRelation r : objectTypeRelationList)
+            for (PhysicalPositional ph : physList)
+                if (ph.getClass() == r.t())
+                    r.collisionType().applyFriction(r.o(), ph, frameProportion);
+        for (TypeRelation r : typeRelationList)
+            for (PhysicalPositional ph1 : physList)
+                if (ph1.getClass() == r.t1())
+                    for (PhysicalPositional ph2 : physList)
+                        if (ph2.getClass() == r.t2())
+                            r.collisionType().applyFriction(ph1, ph2, frameProportion);
     }
 
     private void checkHardStoppages(PhysicalPositional ph) {

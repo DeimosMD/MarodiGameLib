@@ -1,14 +1,12 @@
 package marodi.physics;
 
 import marodi.component.Positional;
-import marodi.control.Game;
 
 public abstract class PhysicalPositional extends Positional {
 
-    private float resistance; // used for roamer physics
-    private float verticalAirResistance; // used for platformer physics
-    private float horizontalAirResistance; // used for platformer physics
-    private float frictionalResistance; // used for platformer or roamer physics
+    private float verticalResistance;
+    private float horizontalResistance;
+    private float specificFrictionalCoefficient;
     Direction verticalCollision = Direction.NONE;
     Direction horizontalCollision = Direction.NONE;
     protected Hitbox[] hitbox =  {};
@@ -18,7 +16,7 @@ public abstract class PhysicalPositional extends Positional {
     protected boolean noVelo; // disables velocity
     protected boolean noGrav; // disables gravity
 
-    // Points at which the object will collide with and scripts that can run at these points
+    // Points at which the object will collide and scripts that can run at these points
     protected Float leftStoppagePoint = null;
     protected Float rightStoppagePoint = null;
     protected Float downStoppagePoint = null;
@@ -32,57 +30,38 @@ public abstract class PhysicalPositional extends Positional {
     float prevX;
     float prevY;
 
+    // Position used to determine if objects are colliding; isn't the same as actual position when calculating friction
+    float colX;
+    float colY;
+
     // direction in radians
     private double directionRadians = 0;
 
-    public void setResistance(float resistance, Game game) {
-        if (resistance < 0 || resistance > 1)
-            throw (new IllegalArgumentException());
-        if (game.getPhysics() instanceof RoamerPhysics) {
-            this.resistance = resistance;
-            return;
-        }
-        else if (game.getPhysics() instanceof PlatformerPhysics) {
-            this.verticalAirResistance = resistance;
-            this.horizontalAirResistance = resistance;
-            return;
-        }
-        throw new IllegalArgumentException();
-    }
-
-    public void setVerticalAirResistance(float resistance, Game game) {
-        assert game.getPhysics() instanceof PlatformerPhysics;
-        assert resistance <= 1 && resistance >= 0;
-        this.verticalAirResistance = resistance;
-    }
-
-    public void setHorizontalAirResistance(float resistance, Game game) {
-        assert game.getPhysics() instanceof PlatformerPhysics;
-        assert resistance <= 1 && resistance >= 0;
-        this.horizontalAirResistance = resistance;
-    }
-
-    public void setFrictionalResistance(float resistance, Game game) {
+    public void setVerticalResistance(float resistance) {
         if (resistance < 0 || resistance > 1) throw (new IllegalArgumentException());
-        this.frictionalResistance = resistance;
+        this.verticalResistance = resistance;
     }
 
-    float getSpecVerticalResistance(Physics physics) {
-        if (physics instanceof PlatformerPhysics) {
-            return verticalAirResistance;
-        } else if (physics instanceof RoamerPhysics) {
-            return resistance;
-        }
-        throw (new IllegalArgumentException());
+    public void setHorizontalResistance(float resistance) {
+        if (resistance < 0 || resistance > 1) throw (new IllegalArgumentException());
+        this.horizontalResistance = resistance;
     }
 
-    float getSpecHorizontalResistance(Physics physics) {
-        if (physics instanceof PlatformerPhysics) {
-            return horizontalAirResistance;
-        } else if (physics instanceof RoamerPhysics) {
-            return resistance;
-        }
-        throw (new IllegalArgumentException());
+    public void setSpecificFrictionalCoefficient(float resistance) {
+        if (resistance < 0 || resistance > 1) throw (new IllegalArgumentException());
+        this.specificFrictionalCoefficient = resistance;
+    }
+
+    public float getSpecificFrictionalCoefficient() {
+        return specificFrictionalCoefficient;
+    }
+
+    public float getHorizontalResistance() {
+        return horizontalResistance;
+    }
+
+    public float getVerticalResistance() {
+        return verticalResistance;
     }
 
     void changePosByVelocity(float frameTime) {
@@ -210,14 +189,6 @@ public abstract class PhysicalPositional extends Positional {
 
     public void setUpStoppagePoint(Float upStoppagePoint) {
         this.upStoppagePoint = upStoppagePoint;
-    }
-
-    protected float getFrictionalResistance() {
-        return frictionalResistance;
-    }
-
-    protected void setFrictionalResistance(float frictionalResistance) {
-        this.frictionalResistance = frictionalResistance;
     }
 
     public void setDirectionDegrees(double directionDegrees) {

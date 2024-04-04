@@ -9,7 +9,6 @@ import marodi.graphics.GraphicsPanel
 import marodi.graphics.Screen
 import marodi.physics.PhysicalPositional
 import marodi.physics.Physics
-import marodi.physics.RoamerPhysics
 import marodi.resource.Loader
 import java.util.*
 
@@ -28,7 +27,7 @@ public open class Game {
         set(value) {camera.world = value}
     public var frameProportion: Float = 0.0F
         internal set
-    public var physics: Physics = RoamerPhysics()
+    public var physics: Physics = Physics()
         private set
     public val statDraw get() = graphicsPanel.graphics2D!!
     public var running = true
@@ -50,16 +49,7 @@ public open class Game {
         indirectConstruction()
     }
 
-    public constructor(physics: Physics) : this() {
-        this.physics = physics
-    }
-
     public constructor(world: World) : this() {
-        currentWorld = world
-    }
-
-    public constructor(physics: Physics, world: World) : this() {
-        this.physics = physics
         currentWorld = world
     }
 

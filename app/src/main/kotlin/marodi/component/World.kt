@@ -1,7 +1,6 @@
 package marodi.component
 
 import marodi.control.Game
-import marodi.physics.PlatformerPhysics
 
 public open class World : Vector2D() {
 
@@ -30,8 +29,18 @@ public open class World : Vector2D() {
     }
 
     public open fun getGravity(game: Game): Float {
-        if (game.physics is PlatformerPhysics)
-            return (game.physics as PlatformerPhysics).gravity
-        throw IllegalArgumentException("Requires PlatformerPhysics")
+        return game.physics.gravity
+    }
+
+    public open fun getBaseHorizontalResistance(game: Game): Float {
+        return game.physics.baseHorizontalResistance
+    }
+
+    public open fun getBaseVerticalResistance(game: Game): Float {
+        return game.physics.baseVerticalResistance
+    }
+
+    public open fun getBaseFrictionalResistance(game: Game): Float {
+        return game.physics.baseFrictionalResistance
     }
 }

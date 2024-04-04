@@ -2,37 +2,39 @@ package marodi.physics;
 
 import marodi.control.Game;
 
-public abstract class Physics {
+import java.util.Vector;
+
+public class Physics {
 
     public final CollisionHandler collisionHandler = new CollisionHandler();
-    float baseFrictionalResistance;
+    private float baseFrictionalResistance = 0.0f;
+    private float baseVerticalResistance = 0.0f;
+    private float baseHorizontalResistance = 0.0f;
+    private float gravity = 0.0f;
 
     public void update(Game game) {
-        for (PhysicalPositional ph : game.getActivePhysicalPositionals()) {
+        Vector<PhysicalPositional> physList = game.getActivePhysicalPositionals();
+        for (PhysicalPositional ph : physList) {
             if (ph.noVelo) {
                 ph.velocityX = 0;
                 ph.velocityY = 0;
             } else {
                 ph.prevX = ph.getX();
                 ph.prevY = ph.getY();
-                ph.changeVelocityWithResistance(getHorizontalResistance(ph), getVerticalResistance(ph), game.getFrameProportion());
-                ph.changePosByVelocity(game.getFrameProportion());
+                if (!ph.noGrav)
+                    ph.velocityY -= ph.getWorld().getGravity(game) * game.getFrameProportion();
+                ph.changeVelocityWithResistance(
+                        1-(1-ph.getHorizontalResistance())*(1-baseHorizontalResistance),
+                        1-(1-ph.getVerticalResistance())*(1-baseVerticalResistance),
+                        game.getFrameProportion()
+                );
             }
         }
-        collisionHandler.update(game);
-    }
-
-    abstract float getHorizontalResistance(PhysicalPositional ph);
-
-    abstract float getVerticalResistance(PhysicalPositional ph);
-
-    public float getBaseFrictionalResistance() {
-        return baseFrictionalResistance;
-    }
-
-    public void setBaseFrictionalResistance(float baseFrictionalResistance) {
-        assert baseFrictionalResistance <= 1 && baseFrictionalResistance >= 0;
-        this.baseFrictionalResistance = baseFrictionalResistance;
+        collisionHandler.updateFriction(physList, game.getFrameProportion());
+        for (PhysicalPositional ph : physList) {
+            ph.changePosByVelocity(game.getFrameProportion());
+        }
+        collisionHandler.updateCollision(physList);
     }
 
     static double radiansToDegrees(double radians) {
@@ -41,5 +43,40 @@ public abstract class Physics {
 
     static double degreesToRadians(double degrees) {
         return degrees * (Math.PI/180);
+    }
+
+    public float getGravity() {
+        return gravity;
+    }
+
+    public void setGravity(float gravity) {
+        this.gravity = gravity;
+    }
+
+    public float getBaseFrictionalResistance() {
+        return baseFrictionalResistance;
+    }
+
+    public void setBaseFrictionalResistance(float baseFrictionalResistance) {
+        if (baseFrictionalResistance < 0 || baseFrictionalResistance > 1) throw (new IllegalArgumentException());
+        this.baseFrictionalResistance = baseFrictionalResistance;
+    }
+
+    public float getBaseVerticalResistance() {
+        return baseVerticalResistance;
+    }
+
+    public void setBaseVerticalResistance(float baseVerticalResistance) {
+        if (baseVerticalResistance < 0 || baseVerticalResistance > 1) throw (new IllegalArgumentException());
+        this.baseVerticalResistance = baseVerticalResistance;
+    }
+
+    public float getBaseHorizontalResistance() {
+        return baseHorizontalResistance;
+    }
+
+    public void setBaseHorizontalResistance(float baseHorizontalResistance) {
+        if (baseHorizontalResistance < 0 || baseHorizontalResistance > 1) throw (new IllegalArgumentException());
+        this.baseHorizontalResistance = baseHorizontalResistance;
     }
 }

@@ -1,7 +1,5 @@
 package marodi.physics;
 
-import marodi.control.Game;
-
 public class CollisionType {
 
     private Direction direction;
@@ -26,40 +24,11 @@ public class CollisionType {
     }
 
     // Collides two objects if colliding based on collision rules, if oneWay then o1 pushes o2
-    public boolean collide(PhysicalPositional o1, PhysicalPositional o2, Game game) {
+    public boolean collide(PhysicalPositional o1, PhysicalPositional o2) {
         float x = checkX(o2, o1, direction);
         float y = checkY(o2, o1, direction);
         if (x != 0 || y != 0) {
             if (oneWay) {
-                if (frictional) {
-                    float frictionalCoefficient = (1 - o1.getFrictionalResistance()) * (1 - o2.getFrictionalResistance());
-                    if (x != 0) {
-                        float normalForce = Math.abs(o1.velocityX - o2.velocityX); // velocity at which they are colliding, as weight is not considered
-                        float frictionalForce = normalForce * frictionalCoefficient;
-                        if (Math.abs(o1.velocityY - o2.velocityY) <= frictionalForce * game.getFrameProportion()) {
-                            o2.velocityY = o1.velocityY;
-                        } else {
-                            if (o1.velocityY < o2.velocityY) {
-                                o2.velocityY -= frictionalForce * game.getFrameProportion();
-                            } else {
-                                o2.velocityY += frictionalForce * game.getFrameProportion();
-                            }
-                        }
-                    }
-                    if (y != 0) {
-                        float normalForce = Math.abs(o1.velocityY - o2.velocityY);
-                        float frictionalForce = normalForce * frictionalCoefficient;
-                        if (Math.abs(o1.velocityX - o2.velocityX) <= frictionalForce * game.getFrameProportion()) {
-                            o2.velocityX = o1.velocityX;
-                        } else {
-                            if (o1.velocityX < o2.velocityX) {
-                                o2.velocityX -= frictionalForce * game.getFrameProportion();
-                            } else {
-                                o2.velocityX += frictionalForce * game.getFrameProportion();
-                            }
-                        }
-                    }
-                }
                 if (x != 0) {
                     o2.incX(x);
                     o2.velocityX = o1.velocityX + (o1.velocityX - o2.velocityX) * recoil;
@@ -79,6 +48,49 @@ public class CollisionType {
             if (onCollisionScript != null)
                 onCollisionScript.onCollision(o1, o2);
             return true;
+        }
+        return false;
+    }
+
+    public boolean applyFriction(PhysicalPositional o1, PhysicalPositional o2, float frameProportion) {
+        if (frictional) {
+            float x = checkX(o2, o1, direction);
+            float y = checkY(o2, o1, direction);
+            if (x != 0 || y != 0) {
+                float frictionalCoefficient = (float)
+                        Math.pow(
+                                1 - (1 - o1.getSpecificFrictionalCoefficient()) * (1 - o2.getSpecificFrictionalCoefficient()),
+                                frameProportion
+                        );
+                if (x != 0) {
+                    float normalForce = Math.abs(o1.velocityX - o2.velocityX); // velocity at which they are colliding, as weight is not considered
+                    float frictionalForce = normalForce * frictionalCoefficient;
+                    // uses y velocity because that is the axis on which they are experiencing friction, not colliding
+                    if (Math.abs(o1.velocityY - o2.velocityY) <= frictionalForce) {
+                        o2.velocityY = o1.velocityY;
+                    } else {
+                        if (o1.velocityY < o2.velocityY) {
+                            o2.velocityY -= frictionalForce;
+                        } else {
+                            o2.velocityY += frictionalForce;
+                        }
+                    }
+                }
+                if (y != 0) {
+                    float normalForce = Math.abs(o1.velocityY - o2.velocityY);
+                    float frictionalForce = normalForce * frictionalCoefficient;
+                    if (Math.abs(o1.velocityX - o2.velocityX) <= frictionalForce) {
+                        o2.velocityX = o1.velocityX;
+                    } else {
+                        if (o1.velocityX < o2.velocityX) {
+                            o2.velocityX -= frictionalForce;
+                        } else {
+                            o2.velocityX += frictionalForce;
+                        }
+                    }
+                }
+                return true;
+            }
         }
         return false;
     }
@@ -178,16 +190,16 @@ public class CollisionType {
         float y = 0;
         for (Hitbox h1 : o1.hitbox)
             for (Hitbox h2 : o2.hitbox) {
-                if (rangesCollide(h1.getLeftSide(o1.getX()), h1.getRightSide(o1.getX()),
-                        h2.getLeftSide(o2.getX()), h2.getRightSide(o2.getX()))) {
-                    if (h2.getTopSide(o2.getY()) > h1.getBottomSide(o1.getY())
+                if (rangesCollide(h1.getLeftSide(o1.colX), h1.getRightSide(o1.colX),
+                        h2.getLeftSide(o2.colX), h2.getRightSide(o2.colX))) {
+                    if (h2.getTopSide(o2.colY) > h1.getBottomSide(o1.colY)
                             && h2.getTopSide(o2.prevY) <= h1.getBottomSide(o1.prevY)) {
-                        float a = h2.getTopSide(o2.getY()) - h1.getBottomSide(o1.getY());
+                        float a = h2.getTopSide(o2.colY) - h1.getBottomSide(o1.colY);
                         if (Math.abs(y) < Math.abs(a))
                             y = a;
-                    } else if (h2.getBottomSide(o2.getY()) < h1.getTopSide(o1.getY())
+                    } else if (h2.getBottomSide(o2.colY) < h1.getTopSide(o1.colY)
                             && h2.getBottomSide(o2.prevY) >= h1.getTopSide(o1.prevY)) {
-                        float a = h2.getBottomSide(o2.getY()) - h1.getTopSide(o1.getY());
+                        float a = h2.getBottomSide(o2.colY) - h1.getTopSide(o1.colY);
                         if (Math.abs(y) < Math.abs(a))
                             y = a;
                     }
@@ -200,16 +212,16 @@ public class CollisionType {
         float x = 0;
         for (Hitbox h1 : o1.hitbox)
             for (Hitbox h2 : o2.hitbox) {
-                if (rangesCollide(h1.getBottomSide(o1.getY()), h1.getTopSide(o1.getY()),
-                        h2.getBottomSide(o2.getY()), h2.getTopSide(o2.getY()))) {
-                    if (h2.getRightSide(o2.getX()) > h1.getLeftSide(o1.getX())
+                if (rangesCollide(h1.getBottomSide(o1.colY), h1.getTopSide(o1.colY),
+                        h2.getBottomSide(o2.colY), h2.getTopSide(o2.colY))) {
+                    if (h2.getRightSide(o2.colX) > h1.getLeftSide(o1.colX)
                             && h2.getRightSide(o2.prevX) <= h1.getLeftSide(o1.prevX)) {
-                        float a = h2.getRightSide(o2.getX()) - h1.getLeftSide(o1.getX());
+                        float a = h2.getRightSide(o2.colX) - h1.getLeftSide(o1.colX);
                         if (Math.abs(x) < Math.abs(a))
                             x = a;
-                    } else if (h2.getLeftSide(o2.getX()) < h1.getRightSide(o1.getX())
+                    } else if (h2.getLeftSide(o2.colX) < h1.getRightSide(o1.colX)
                             && h2.getLeftSide(o2.prevX) >= h1.getRightSide(o1.prevX)) {
-                        float a = h2.getLeftSide(o2.getX()) - h1.getRightSide(o1.getX());
+                        float a = h2.getLeftSide(o2.colX) - h1.getRightSide(o1.colX);
                         if (Math.abs(x) < Math.abs(a))
                             x = a;
                     }
