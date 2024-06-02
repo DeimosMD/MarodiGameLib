@@ -2,6 +2,9 @@ package marodi.physics;
 
 import marodi.component.Positional;
 
+import java.util.Vector;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 public abstract class PhysicalPositional extends Positional {
 
     private float verticalResistance;
@@ -15,6 +18,7 @@ public abstract class PhysicalPositional extends Positional {
     protected float mass = 1;
     protected boolean noVelo; // disables velocity
     protected boolean noGrav; // disables gravity
+    private double directionRadians = 0; // direction in radians
 
     // Points at which the object will collide and scripts that can run at these points
     protected Float leftStoppagePoint = null;
@@ -34,8 +38,10 @@ public abstract class PhysicalPositional extends Positional {
     float colX;
     float colY;
 
-    // direction in radians
-    private double directionRadians = 0;
+    // CollisionObjectPairs that involve this sprite
+    CopyOnWriteArrayList<CollisionObjectPair> collisionObjectPairListHorizontal;
+    CopyOnWriteArrayList<CollisionObjectPair> collisionObjectPairListVertical;
+    CopyOnWriteArrayList<CollisionObjectPair> collisionObjectPairListFrictional;
 
     public void setVerticalResistance(float resistance) {
         if (resistance < 0 || resistance > 1) throw (new IllegalArgumentException());
@@ -65,8 +71,8 @@ public abstract class PhysicalPositional extends Positional {
     }
 
     void changePosByVelocity(float frameTime) {
-        x += velocityX * frameTime;
-        y += velocityY * frameTime;
+        incX(velocityX * frameTime);
+        incY(velocityY * frameTime);
     }
 
     void changeVelocityWithResistance(float resistanceX, float resistanceY, float frameTime) {
@@ -109,6 +115,14 @@ public abstract class PhysicalPositional extends Positional {
 
     public float distanceTo(Positional positional) {
         return (float) Math.sqrt(Math.pow(positional.getX()-this.x, 2) + Math.pow(positional.getY()-this.y, 2));
+    }
+
+    public float getMomentumX() {
+        return mass * velocityX;
+    }
+
+    public float getMomentumY() {
+        return mass * velocityY;
     }
 
     protected Hitbox[] getHitbox() {

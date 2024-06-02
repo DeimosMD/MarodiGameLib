@@ -6,11 +6,7 @@ and then called by the library when needed.
 Marodi as well handles physics, collision, and camera scrolling.
 ### Starting to code with the library
 To utilize the library, one must create a _Game_ object 
-by either creating an instance of the 
-_Game_ class directly or creating a subclass and creating an instance of that. 
-Creating a _Game_ subclass is not necessary for the basic program made in
-this tutorial but is good practice because it is used a lot in more
-complex games.
+by creating a subclass and creating an instance of that.
 Below is an example of a _Game_ subclass.
 Creating sprites is as well practically necessary for any game. 
 Below also an example of how to make a basic _Player_ sprite class.

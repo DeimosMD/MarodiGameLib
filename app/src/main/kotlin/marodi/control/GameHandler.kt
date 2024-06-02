@@ -13,6 +13,7 @@ class GameHandler (
 
     val thread = Thread(this)
     lateinit var trackFPS: PerformanceTracker
+    var latestSleepTimeMS = 1L
 
     fun init() {
         trackFPS = PerformanceTracker("Tracked FPS", runtimeSettings.isPrintFramesPerSecond)
@@ -42,6 +43,7 @@ class GameHandler (
                         - (System.nanoTime() - startTimeNS)) / 1_000_000
             if (sleepTimeMS > 0) {
                 try {
+                    latestSleepTimeMS = sleepTimeMS
                     Thread.sleep(sleepTimeMS) // Sleeps the remaining time in milliseconds
                 } catch (e: InterruptedException) {
                     e.printStackTrace()

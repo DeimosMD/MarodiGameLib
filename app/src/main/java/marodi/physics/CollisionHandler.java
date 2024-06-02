@@ -1,13 +1,16 @@
 package marodi.physics;
 
 import java.util.Vector;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public final class CollisionHandler {
-    
-    private final Vector<TypeRelation> typeRelationList = new Vector<>();
-    private final Vector<ObjectRelation> objectRelationList = new Vector<>();
-    private final Vector<TypeObjectRelation> typeObjectRelationList = new Vector<>();
-    private final Vector<ObjectTypeRelation> objectTypeRelationList = new Vector<>();
+
+    private Vector<PhysicalPositional> recentPhysList = new Vector<>();
+
+    private final CopyOnWriteArrayList<TypeRelation> typeRelationList = new CopyOnWriteArrayList<>();
+    private final CopyOnWriteArrayList<ObjectRelation> objectRelationList = new CopyOnWriteArrayList<>();
+    private final CopyOnWriteArrayList<TypeObjectRelation> typeObjectRelationList = new CopyOnWriteArrayList<>();
+    private final CopyOnWriteArrayList<ObjectTypeRelation> objectTypeRelationList = new CopyOnWriteArrayList<>();
 
     private record TypeRelation(
             Class<?> t1,
@@ -37,8 +40,9 @@ public final class CollisionHandler {
     ) {
     }
 
-    public boolean addRelation(Class<?> t1, Class<?> t2,  CollisionType collisionType) {
-        return typeRelationList.add(new TypeRelation(t1, t2, collisionType));
+    public void addRelation(Class<?> t1, Class<?> t2,  CollisionType collisionType) {
+        typeRelationList.add(new TypeRelation(t1, t2, collisionType));
+        updateCollisionObjectPairList(recentPhysList);
     }
 
     public boolean removeRelation(Class<?> t1, Class<?> t2) {
@@ -51,8 +55,9 @@ public final class CollisionHandler {
         return a > 0;
     }
 
-    public boolean addRelation(PhysicalPositional o1, PhysicalPositional o2, CollisionType collisionType) {
-        return objectRelationList.add(new ObjectRelation(o1, o2, collisionType));
+    public void addRelation(PhysicalPositional o1, PhysicalPositional o2, CollisionType collisionType) {
+        objectRelationList.add(new ObjectRelation(o1, o2, collisionType));
+        updateCollisionObjectPairList(recentPhysList);
     }
 
     public boolean removeRelation(PhysicalPositional o1, PhysicalPositional o2) {
@@ -65,8 +70,9 @@ public final class CollisionHandler {
         return a > 0;
     }
 
-    public boolean addRelation(Class<?> t, PhysicalPositional o, CollisionType collisionType) {
-        return typeObjectRelationList.add(new TypeObjectRelation(t, o, collisionType));
+    public void addRelation(Class<?> t, PhysicalPositional o, CollisionType collisionType) {
+        typeObjectRelationList.add(new TypeObjectRelation(t, o, collisionType));
+        updateCollisionObjectPairList(recentPhysList);
     }
 
     public boolean removeRelation(Class<?> t, PhysicalPositional o) {
@@ -79,8 +85,9 @@ public final class CollisionHandler {
         return a > 0;
     }
 
-    public boolean addRelation(PhysicalPositional o, Class<?> t, CollisionType collisionType) {
-        return objectTypeRelationList.add(new ObjectTypeRelation(o, t, collisionType));
+    public void addRelation(PhysicalPositional o, Class<?> t, CollisionType collisionType) {
+        objectTypeRelationList.add(new ObjectTypeRelation(o, t, collisionType));
+        updateCollisionObjectPairList(recentPhysList);
     }
 
     public boolean removeRelation(PhysicalPositional o, Class<?> t) {
@@ -93,82 +100,214 @@ public final class CollisionHandler {
         return a > 0;
     }
 
-    void updateCollision(Vector<PhysicalPositional> physList) {
-        for (PhysicalPositional ph : physList) {
-            checkHardStoppages(ph);
-            ph.colX = ph.getX();
-            ph.colY = ph.getY();
-        }
-        for (ObjectRelation r : objectRelationList)
-            r.collisionType().collide(r.o1(), r.o2);
-        for (TypeObjectRelation r : typeObjectRelationList)
-            for (PhysicalPositional ph : physList)
-                if (ph.getClass() == r.t())
-                    r.collisionType().collide(ph, r.o);
-        for (ObjectTypeRelation r : objectTypeRelationList)
-            for (PhysicalPositional ph : physList)
-                if (ph.getClass() == r.t())
-                    r.collisionType().collide(r.o(), ph);
-        for (TypeRelation r : typeRelationList)
-            for (PhysicalPositional ph1 : physList)
-                if (ph1.getClass() == r.t1())
-                    for (PhysicalPositional ph2 : physList)
-                         if (ph2.getClass() == r.t2())
-                             r.collisionType().collide(ph1, ph2);
-    }
-
-    void updateFriction(Vector<PhysicalPositional> physList, float frameProportion) {
+    void updateCollision(Vector<PhysicalPositional> physList, float frameProportion) {
         for (PhysicalPositional ph : physList) {
             ph.horizontalCollision = Direction.NONE;
             ph.verticalCollision = Direction.NONE;
+        }
+        if (!physList.equals(recentPhysList)) {
+            recentPhysList = new Vector<>(physList);
+            updateCollisionObjectPairList(recentPhysList);
+        }
+        updateVerticalCollision(physList);
+        updateHorizontalCollision(physList);
+        updateFriction(physList, frameProportion);
+    }
+
+    private void updateVerticalCollision(Vector<PhysicalPositional> physList) {
+        // loops again if any are colliding in case one collision causes another
+        Vector<PhysicalPositional> toEvaluate = new Vector<>(physList); // colliding in the current iteration
+        Vector<PhysicalPositional> toBeReevaluated = new Vector<>(); // to collide in the next iteration
+        // isn't affected by these collisions, so it doesn't have to be set after every iteration
+        for (PhysicalPositional ph : physList) {
+            ph.colX = ph.getX();
+        }
+        while (!toEvaluate.isEmpty()) {
+            for (PhysicalPositional ph : physList) {
+                ph.colY = ph.getY();
+            }
+            for (PhysicalPositional ph : toEvaluate) {
+                for (CollisionObjectPair c : ph.collisionObjectPairListVertical)
+                    if (c.runVerticalCollision()) {
+                        toBeReevaluated.add(c.o1());
+                        if (c.col().isNotOneWay())
+                            toBeReevaluated.add(c.o2());
+                    }
+                if (checkHardStoppagesVertical(ph))
+                    toBeReevaluated.add(ph);
+            }
+            // checks and removes any duplicates in toBeReevaluated
+            for (int i = 0; i < toBeReevaluated.size(); i++) {
+                for (int j = 0; j < toBeReevaluated.size(); j++) {
+                    if (toBeReevaluated.get(i) == toBeReevaluated.get(j) && i != j) {
+                        toBeReevaluated.remove(j);
+                        j--;
+                        i--;
+                    }
+                }
+            }
+            toEvaluate = new Vector<>(toBeReevaluated);
+            toBeReevaluated = new Vector<>();
+        }
+    }
+
+    private void updateHorizontalCollision(Vector<PhysicalPositional> physList) {
+        // loops again if any are colliding in case one collision causes another
+        Vector<PhysicalPositional> toEvaluate = new Vector<>(physList); // colliding in the current iteration
+        Vector<PhysicalPositional> toBeReevaluated = new Vector<>(); // to collide in the next iteration
+        // isn't affected by these collisions, so it doesn't have to be set after every iteration
+        for (PhysicalPositional ph : physList) {
+            ph.colY = ph.getY();
+        }
+        while (!toEvaluate.isEmpty()) {
+            for (PhysicalPositional ph : physList) {
+                ph.colX = ph.getX();
+            }
+            for (PhysicalPositional ph : toEvaluate) {
+                for (CollisionObjectPair c : ph.collisionObjectPairListHorizontal)
+                    if (c.runHorizontalCollision()) {
+                        toBeReevaluated.add(c.o1());
+                        if (c.col().isNotOneWay())
+                            toBeReevaluated.add(c.o2());
+                    }
+                if (checkHardStoppagesHorizontal(ph))
+                    toBeReevaluated.add(ph);
+            }
+            // checks and removes any duplicates in toBeReevaluated
+            for (int i = 0; i < toBeReevaluated.size(); i++) {
+                for (int j = 0; j < toBeReevaluated.size(); j++) {
+                    if (toBeReevaluated.get(i) == toBeReevaluated.get(j) && i != j) {
+                        toBeReevaluated.remove(j);
+                        j--;
+                        i--;
+                    }
+                }
+            }
+            toEvaluate = new Vector<>(toBeReevaluated);
+            toBeReevaluated = new Vector<>();
+        }
+    }
+
+    private void updateFriction(Vector<PhysicalPositional> physList, float frameProportion) {
+        for (PhysicalPositional ph : physList) {
             ph.colX = ph.getX() + ph.velocityX*frameProportion;
             ph.colY = ph.getY() + ph.velocityY*frameProportion;
         }
-        for (ObjectRelation r : objectRelationList)
-            r.collisionType().applyFriction(r.o1(), r.o2(), frameProportion);
-        for (TypeObjectRelation r : typeObjectRelationList)
-            for (PhysicalPositional ph : physList)
-                if (ph.getClass() == r.t())
-                    r.collisionType().applyFriction(ph, r.o(), frameProportion);
-        for (ObjectTypeRelation r : objectTypeRelationList)
-            for (PhysicalPositional ph : physList)
-                if (ph.getClass() == r.t())
-                    r.collisionType().applyFriction(r.o(), ph, frameProportion);
-        for (TypeRelation r : typeRelationList)
-            for (PhysicalPositional ph1 : physList)
-                if (ph1.getClass() == r.t1())
-                    for (PhysicalPositional ph2 : physList)
-                        if (ph2.getClass() == r.t2())
-                            r.collisionType().applyFriction(ph1, ph2, frameProportion);
+        for (PhysicalPositional ph : physList) {
+            for (CollisionObjectPair c : ph.collisionObjectPairListFrictional) {
+                c.runApplyFriction(frameProportion);
+            }
+        }
     }
 
-    private void checkHardStoppages(PhysicalPositional ph) {
+    private void updateCollisionObjectPairList(Vector<PhysicalPositional> physList) {
+        // resets CollisionObjectPair lists
+        for (PhysicalPositional ph : physList) {
+            ph.collisionObjectPairListVertical = new CopyOnWriteArrayList<>();
+            ph.collisionObjectPairListHorizontal = new CopyOnWriteArrayList<>();
+            ph.collisionObjectPairListFrictional = new CopyOnWriteArrayList<>();
+        }
+        // adds the PhysicalPositionals' involved collisions to their CollisionObjectPair lists
+        for (ObjectRelation r : objectRelationList) {
+            CollisionObjectPair c = new CollisionObjectPair(r.o1(), r.o2(), r.collisionType);
+            if (r.collisionType().getDirection().isAnyHorizontal()) {
+                c.o1().collisionObjectPairListHorizontal.add(c);
+                c.o2().collisionObjectPairListHorizontal.add(c);
+            }
+            if (r.collisionType().getDirection().isAnyVertical()) {
+                c.o1().collisionObjectPairListVertical.add(c);
+                c.o2().collisionObjectPairListVertical.add(c);
+            }
+            if (r.collisionType().isFrictional()) {
+                c.o1().collisionObjectPairListFrictional.add(c);
+                c.o2().collisionObjectPairListFrictional.add(c);
+            }
+        }
+        for (TypeObjectRelation r : typeObjectRelationList) {
+            for (PhysicalPositional ph : physList) {
+                if (r.t().isInstance(ph)) {
+                    CollisionObjectPair c = new CollisionObjectPair(ph, r.o(), r.collisionType);
+                    if (r.collisionType().getDirection().isAnyHorizontal()) {
+                        c.o1().collisionObjectPairListHorizontal.add(c);
+                        c.o2().collisionObjectPairListHorizontal.add(c);
+                    }
+                    if (r.collisionType().getDirection().isAnyVertical()) {
+                        c.o1().collisionObjectPairListVertical.add(c);
+                        c.o2().collisionObjectPairListVertical.add(c);
+                    }
+                    if (r.collisionType().isFrictional()) {
+                        c.o1().collisionObjectPairListFrictional.add(c);
+                        c.o2().collisionObjectPairListFrictional.add(c);
+                    }
+                }
+            }
+        }
+        for (ObjectTypeRelation r : objectTypeRelationList)
+            for (PhysicalPositional ph : physList)
+                if (r.t().isInstance(ph)) {
+                    CollisionObjectPair c = new CollisionObjectPair(r.o(), ph, r.collisionType);
+                    if (r.collisionType().getDirection().isAnyHorizontal()) {
+                        c.o1().collisionObjectPairListHorizontal.add(c);
+                        c.o2().collisionObjectPairListHorizontal.add(c);
+                    }
+                    if (r.collisionType().getDirection().isAnyVertical()) {
+                        c.o1().collisionObjectPairListVertical.add(c);
+                        c.o2().collisionObjectPairListVertical.add(c);
+                    }
+                    if (r.collisionType().isFrictional()) {
+                        c.o1().collisionObjectPairListFrictional.add(c);
+                        c.o2().collisionObjectPairListFrictional.add(c);
+                    }
+                }
+        for (TypeRelation r : typeRelationList)
+            for (PhysicalPositional ph1 : physList)
+                if (r.t1().isInstance(ph1))
+                    for (PhysicalPositional ph2 : physList)
+                        if (r.t2().isInstance(ph2)) {
+                            CollisionObjectPair c = new CollisionObjectPair(ph1, ph2, r.collisionType);
+                            if (r.collisionType().getDirection().isAnyHorizontal()) {
+                                c.o1().collisionObjectPairListHorizontal.add(c);
+                                c.o2().collisionObjectPairListHorizontal.add(c);
+                            }
+                            if (r.collisionType().getDirection().isAnyVertical()) {
+                                c.o1().collisionObjectPairListVertical.add(c);
+                                c.o2().collisionObjectPairListVertical.add(c);
+                            }
+                            if (r.collisionType().isFrictional()) {
+                                c.o1().collisionObjectPairListFrictional.add(c);
+                                c.o2().collisionObjectPairListFrictional.add(c);
+                            }
+                        }
+        // checks for and removes any identical CollisionObjectPairs
+        for (PhysicalPositional ph : physList) {
+            for (CollisionObjectPair c1 : ph.collisionObjectPairListVertical) {
+                for (CollisionObjectPair c2 : ph.collisionObjectPairListVertical) {
+                    if (c1.isDuplicate(c2))
+                        ph.collisionObjectPairListVertical.remove(c1);
+                }
+            }
+            for (CollisionObjectPair c1 : ph.collisionObjectPairListHorizontal) {
+                for (CollisionObjectPair c2 : ph.collisionObjectPairListHorizontal) {
+                    if (c1.isDuplicate(c2))
+                        ph.collisionObjectPairListHorizontal.remove(c1);
+                }
+            }
+            for (CollisionObjectPair c1 : ph.collisionObjectPairListFrictional) {
+                for (CollisionObjectPair c2 : ph.collisionObjectPairListFrictional) {
+                    if (c1.isDuplicate(c2))
+                        ph.collisionObjectPairListFrictional.remove(c1);
+                }
+            }
+        }
+    }
+
+    private boolean checkHardStoppagesVertical(PhysicalPositional ph) {
+        boolean b = false;
         for (Hitbox h : ph.hitbox) {
-            if (ph.rightStoppagePoint != null) {
-                Float r = h.getRightSide(ph.getX());
-                if (r > ph.rightStoppagePoint) {
-                    ph.incX(ph.rightStoppagePoint - r);
-                    ph.horizontalCollision = Direction.RIGHT;
-                    if (ph.rightStoppageScript == null)
-                        ph.setVelocityX(0);
-                    else
-                        ph.rightStoppageScript.onPhysicalPositionalStoppage(ph);
-                }
-            }
-            if (ph.leftStoppagePoint != null) {
-                Float r = h.getLeftSide(ph.getX());
-                if (r < ph.leftStoppagePoint) {
-                    ph.incX(ph.leftStoppagePoint - r);
-                    ph.horizontalCollision = Direction.LEFT;
-                    if (ph.leftStoppageScript == null)
-                        ph.setVelocityX(0);
-                    else
-                        ph.leftStoppageScript.onPhysicalPositionalStoppage(ph);
-                }
-            }
             if (ph.upStoppagePoint != null) {
                 Float r = h.getTopSide(ph.getY());
                 if (r > ph.upStoppagePoint) {
+                    b = true;
                     ph.incY(ph.upStoppagePoint - r);
                     ph.verticalCollision = Direction.UP;
                     if (ph.upStoppageScript == null)
@@ -180,6 +319,7 @@ public final class CollisionHandler {
             if (ph.downStoppagePoint != null) {
                 Float r = h.getBottomSide(ph.getY());
                 if (r < ph.downStoppagePoint) {
+                    b = true;
                     ph.incY(ph.downStoppagePoint - r);
                     ph.verticalCollision = Direction.DOWN;
                     if (ph.downStoppageScript == null)
@@ -189,5 +329,37 @@ public final class CollisionHandler {
                 }
             }
         }
+        return b;
+    }
+
+    private boolean checkHardStoppagesHorizontal(PhysicalPositional ph) {
+        boolean b = false;
+        for (Hitbox h : ph.hitbox) {
+            if (ph.rightStoppagePoint != null) {
+                Float r = h.getRightSide(ph.getX());
+                if (r > ph.rightStoppagePoint) {
+                    b = true;
+                    ph.incX(ph.rightStoppagePoint - r);
+                    ph.horizontalCollision = Direction.RIGHT;
+                    if (ph.rightStoppageScript == null)
+                        ph.setVelocityX(0);
+                    else
+                        ph.rightStoppageScript.onPhysicalPositionalStoppage(ph);
+                }
+            }
+            if (ph.leftStoppagePoint != null) {
+                Float r = h.getLeftSide(ph.getX());
+                if (r < ph.leftStoppagePoint) {
+                    b = true;
+                    ph.incX(ph.leftStoppagePoint - r);
+                    ph.horizontalCollision = Direction.LEFT;
+                    if (ph.leftStoppageScript == null)
+                        ph.setVelocityX(0);
+                    else
+                        ph.leftStoppageScript.onPhysicalPositionalStoppage(ph);
+                }
+            }
+        }
+        return b;
     }
 }

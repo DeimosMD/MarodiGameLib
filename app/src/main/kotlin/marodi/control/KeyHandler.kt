@@ -9,7 +9,7 @@ class KeyHandler (
     private val game: Game
 ) : KeyListener {
 
-    private val screen get() = game.screen
+    private val graphicsPanel get() = game.graphicsPanel
 
     private var lastTickPressed = Vector<Int>() // Keys pressed at the tick before the most recent frame
     private var currentTickPressed = Vector<Int>() // Keys pressed at the most recent frame
@@ -17,11 +17,10 @@ class KeyHandler (
     private var effectivePressed = Vector<Int>() // Keys being held down at current time and any pressed during the current frame
 
     fun init() {
-        screen.addKeyListener(this)
-        screen.isFocusable = true
-        screen.requestFocusInWindow()
+        graphicsPanel.addKeyListener(this)
+        graphicsPanel.isFocusable = true
+        graphicsPanel.requestFocusInWindow()
     }
-
 
     fun update() {
         lastTickPressed = Vector<Int>(currentTickPressed)
@@ -29,16 +28,13 @@ class KeyHandler (
         effectivePressed = Vector<Int>(realPressed)
     }
 
-
     public fun isPressed(keyCode: Int): Boolean {
         return containsKeyOrKeyOfSet(currentTickPressed, keyCode)
     }
 
-
     public fun downPressed(keyCode: Int): Boolean {
         return containsKeyOrKeyOfSet(currentTickPressed, keyCode) && !containsKeyOrKeyOfSet(lastTickPressed, keyCode)
     }
-
 
     public fun wasReleased(keyCode: Int): Boolean {
         return !containsKeyOrKeyOfSet(currentTickPressed, keyCode) && containsKeyOrKeyOfSet(lastTickPressed, keyCode)

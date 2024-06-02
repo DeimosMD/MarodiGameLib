@@ -2,10 +2,12 @@ package marodi.physics;
 
 public class CollisionType {
 
+    private static final float EPSILON = 1e-3f; // helps to account for computer rounding errors
+
     private Direction direction;
     private boolean frictional;
     private float recoil;
-    private boolean oneWay;
+    private boolean oneWay; // if o2 should push o1 but not vice versa
     private OnCollision onCollisionScript = null;
 
     public CollisionType(Direction direction, boolean frictional, float recoil, boolean oneWay) {
@@ -23,27 +25,30 @@ public class CollisionType {
         this.onCollisionScript = onCollisionScript;
     }
 
-    // Collides two objects if colliding based on collision rules, if oneWay then o1 pushes o2
-    public boolean collide(PhysicalPositional o1, PhysicalPositional o2) {
-        float x = checkX(o2, o1, direction);
+    boolean collideVertical(PhysicalPositional o1, PhysicalPositional o2) {
         float y = checkY(o2, o1, direction);
-        if (x != 0 || y != 0) {
+        if (y != 0) {
             if (oneWay) {
-                if (x != 0) {
-                    o2.incX(x);
-                    o2.velocityX = o1.velocityX + (o1.velocityX - o2.velocityX) * recoil;
-                }
-                if (y != 0) {
-                    o2.incY(y);
-                    o2.velocityY = o1.velocityY + (o1.velocityY - o2.velocityY) * recoil;
-                }
+                o2.incY(y);
+                o2.velocityY = o1.velocityY + (o1.velocityY - o2.velocityY) * recoil;
             } else {
-                if (x != 0) {
-                    twoWayAdjustX(o1, o2, x);
-                }
-                if (y != 0) {
-                    twoWayAdjustY(o1, o2, y);
-                }
+                twoWayAdjustY(o1, o2, y);
+            }
+            if (onCollisionScript != null)
+                onCollisionScript.onCollision(o1, o2);
+            return true;
+        }
+        return false;
+    }
+
+    boolean collideHorizontal(PhysicalPositional o1, PhysicalPositional o2) {
+        float x = checkX(o2, o1, direction);
+        if (x != 0) {
+            if (oneWay) {
+                o2.incX(x);
+                o2.velocityX = o1.velocityX + (o1.velocityX - o2.velocityX) * recoil;
+            } else {
+                twoWayAdjustX(o1, o2, x);
             }
             if (onCollisionScript != null)
                 onCollisionScript.onCollision(o1, o2);
@@ -63,29 +68,33 @@ public class CollisionType {
                                 frameProportion
                         );
                 if (x != 0) {
-                    float normalForce = Math.abs(o1.velocityX - o2.velocityX); // velocity at which they are colliding, as weight is not considered
-                    float frictionalForce = normalForce * frictionalCoefficient;
-                    // uses y velocity because that is the axis on which they are experiencing friction, not colliding
-                    if (Math.abs(o1.velocityY - o2.velocityY) <= frictionalForce) {
-                        o2.velocityY = o1.velocityY;
-                    } else {
-                        if (o1.velocityY < o2.velocityY) {
-                            o2.velocityY -= frictionalForce;
+                    if (oneWay) {
+                        float normalForce = Math.abs(o1.velocityX - o2.velocityX); // velocity at which they are colliding, as weight is not considered
+                        float frictionalForce = normalForce * frictionalCoefficient;
+                        // uses y velocity because that is the axis on which they are experiencing friction, not colliding
+                        if (Math.abs(o1.velocityY - o2.velocityY) <= frictionalForce) {
+                            o2.velocityY = o1.velocityY;
                         } else {
-                            o2.velocityY += frictionalForce;
+                            if (o1.velocityY < o2.velocityY) {
+                                o2.velocityY -= frictionalForce;
+                            } else {
+                                o2.velocityY += frictionalForce;
+                            }
                         }
                     }
                 }
                 if (y != 0) {
-                    float normalForce = Math.abs(o1.velocityY - o2.velocityY);
-                    float frictionalForce = normalForce * frictionalCoefficient;
-                    if (Math.abs(o1.velocityX - o2.velocityX) <= frictionalForce) {
-                        o2.velocityX = o1.velocityX;
-                    } else {
-                        if (o1.velocityX < o2.velocityX) {
-                            o2.velocityX -= frictionalForce;
+                    if (oneWay) {
+                        float normalForce = Math.abs(o1.velocityY - o2.velocityY);
+                        float frictionalForce = normalForce * frictionalCoefficient;
+                        if (Math.abs(o1.velocityX - o2.velocityX) <= frictionalForce) {
+                            o2.velocityX = o1.velocityX;
                         } else {
-                            o2.velocityX += frictionalForce;
+                            if (o1.velocityX < o2.velocityX) {
+                                o2.velocityX -= frictionalForce;
+                            } else {
+                                o2.velocityX += frictionalForce;
+                            }
                         }
                     }
                 }
@@ -119,8 +128,8 @@ public class CollisionType {
         this.recoil = recoil;
     }
 
-    public boolean isOneWay() {
-        return oneWay;
+    public boolean isNotOneWay() {
+        return !oneWay;
     }
 
     public void setOneWay(boolean oneWay) {
@@ -176,15 +185,15 @@ public class CollisionType {
             r2a -= r2b;
         }
 
-        if (r1a > r2a && r1a < r2b) return true;
-        if (r1b > r2a && r1b < r2b) return true;
-        if (r2a > r1a && r2a < r1b) return true;
-        if (r2b > r1a && r2b < r1b) return true;
-        if (r1a == r2a && r1b == r2b) return true;
+        if (r1a-EPSILON > r2a && r1a < r2b-EPSILON) return true;
+        if (r1b-EPSILON > r2a && r1b < r2b-EPSILON) return true;
+        if (r2a-EPSILON > r1a && r2a < r1b-EPSILON) return true;
+        if (r2b-EPSILON > r1a && r2b < r1b-EPSILON) return true;
+        if (Math.abs(r1a-r2a) < EPSILON && Math.abs(r1b-r2b) < EPSILON) return true;
         return false;
     }
 
-    // if colliding on axis return amount to adjust o1 on that axis so that it would no longer be colliding with o2 on that axis
+    // if colliding on axis then return amount to adjust o1 on that axis so that it would no longer be colliding with o2 on that axis
     // else return 0
     private float getVerticalCollisionOffset(PhysicalPositional o1, PhysicalPositional o2) {
         float y = 0;
@@ -192,13 +201,13 @@ public class CollisionType {
             for (Hitbox h2 : o2.hitbox) {
                 if (rangesCollide(h1.getLeftSide(o1.colX), h1.getRightSide(o1.colX),
                         h2.getLeftSide(o2.colX), h2.getRightSide(o2.colX))) {
-                    if (h2.getTopSide(o2.colY) > h1.getBottomSide(o1.colY)
-                            && h2.getTopSide(o2.prevY) <= h1.getBottomSide(o1.prevY)) {
+                    if (h2.getTopSide(o2.colY)+EPSILON > h1.getBottomSide(o1.colY)
+                            && h2.getTopSide(o2.prevY) <= h1.getBottomSide(o1.prevY)+EPSILON) {
                         float a = h2.getTopSide(o2.colY) - h1.getBottomSide(o1.colY);
                         if (Math.abs(y) < Math.abs(a))
                             y = a;
-                    } else if (h2.getBottomSide(o2.colY) < h1.getTopSide(o1.colY)
-                            && h2.getBottomSide(o2.prevY) >= h1.getTopSide(o1.prevY)) {
+                    } else if (h2.getBottomSide(o2.colY) < h1.getTopSide(o1.colY)+EPSILON
+                            && h2.getBottomSide(o2.prevY)+EPSILON >= h1.getTopSide(o1.prevY)) {
                         float a = h2.getBottomSide(o2.colY) - h1.getTopSide(o1.colY);
                         if (Math.abs(y) < Math.abs(a))
                             y = a;
@@ -214,13 +223,13 @@ public class CollisionType {
             for (Hitbox h2 : o2.hitbox) {
                 if (rangesCollide(h1.getBottomSide(o1.colY), h1.getTopSide(o1.colY),
                         h2.getBottomSide(o2.colY), h2.getTopSide(o2.colY))) {
-                    if (h2.getRightSide(o2.colX) > h1.getLeftSide(o1.colX)
-                            && h2.getRightSide(o2.prevX) <= h1.getLeftSide(o1.prevX)) {
+                    if (h2.getRightSide(o2.colX)+EPSILON > h1.getLeftSide(o1.colX)
+                            && h2.getRightSide(o2.prevX) <= h1.getLeftSide(o1.prevX)+EPSILON) {
                         float a = h2.getRightSide(o2.colX) - h1.getLeftSide(o1.colX);
                         if (Math.abs(x) < Math.abs(a))
                             x = a;
-                    } else if (h2.getLeftSide(o2.colX) < h1.getRightSide(o1.colX)
-                            && h2.getLeftSide(o2.prevX) >= h1.getRightSide(o1.prevX)) {
+                    } else if (h2.getLeftSide(o2.colX) < h1.getRightSide(o1.colX)+EPSILON
+                            && h2.getLeftSide(o2.prevX)+EPSILON >= h1.getRightSide(o1.prevX)) {
                         float a = h2.getLeftSide(o2.colX) - h1.getRightSide(o1.colX);
                         if (Math.abs(x) < Math.abs(a))
                             x = a;
@@ -230,45 +239,33 @@ public class CollisionType {
         return x;
     }
 
-    private float getSign(float n) {
-        if (n > 0) return 1;
-        if (n < 0) return -1;
-        return 0;
-    }
-
-    private boolean isSameSign(float n1, float n2) {
-        if ((n1 == 0 && n2 != 0) || (n2 == 0 && n1 != 0)) return false;
-        if (n1 == 0 && (n2 == 0)) return true;
-        return Math.abs(n1)/n1 == Math.abs(n2)/n2;
-    }
-
     private void twoWayAdjustX(PhysicalPositional o1, PhysicalPositional o2, float x) {
-        float momentum = o1.mass * o1.velocityX + o2.mass * o2.velocityX;
+        float totalMomentum = o1.getMomentumX() + o2.getMomentumX();
         float totalMass = o1.mass + o2.mass;
-        if (isSameSign(o1.getVelocityX(), momentum))
-            o2.incX(-x);
-        else if (isSameSign(o2.getVelocityX(), momentum))
-            o1.incX(x);
+        if (Math.abs(o1.getMomentumX()) > Math.abs(o2.getMomentumX()))
+            o2.incX(x);
+        else if (Math.abs(o1.getMomentumX()) < Math.abs(o2.getMomentumX()))
+            o1.incX(-x);
         else {
-            o1.incX(x/2);
-            o2.incX(-x/2);
+            o1.incX(-x/2);
+            o2.incX(x/2);
         }
-        o1.setVelocityX(momentum/totalMass*(1-recoil)-momentum/o1.mass*recoil*getSign(o1.getVelocityX()));
-        o2.setVelocityX(momentum/totalMass*(1-recoil)-momentum/o2.mass*recoil*getSign(o2.getVelocityX()));
+        o1.setVelocityX(totalMomentum/totalMass+(o2.getMomentumX()-o1.getMomentumX())*recoil/o1.mass);
+        o2.setVelocityX(totalMomentum/totalMass+(o1.getMomentumX()-o2.getMomentumX())*recoil/o2.mass);
     }
 
     private void twoWayAdjustY(PhysicalPositional o1, PhysicalPositional o2, float y) {
-        float momentum = o1.mass * o1.velocityY + o2.mass * o2.velocityY;
+        float totalMomentum = o1.getMomentumY() + o2.getMomentumY();
         float totalMass = o1.mass + o2.mass;
-        if (isSameSign(o1.getVelocityY(), momentum))
-            o2.incY(-y);
-        else if (isSameSign(o2.getVelocityY(), momentum))
-            o1.incY(y);
+        if (Math.abs(o1.getMomentumY()) > Math.abs(o2.getMomentumY()))
+            o2.incY(y);
+        else if (Math.abs(o1.getMomentumY()) < Math.abs(o2.getMomentumY()))
+            o1.incY(-y);
         else {
-            o1.incY(y/2);
-            o2.incY(-y/2);
+            o1.incY(-y/2);
+            o2.incY(y/2);
         }
-        o1.setVelocityY(momentum/totalMass*(1-recoil)-momentum/o1.mass*recoil*getSign(o1.getVelocityY()));
-        o2.setVelocityY(momentum/totalMass*(1-recoil)-momentum/o2.mass*recoil*getSign(o2.getVelocityY()));
+        o1.setVelocityY(totalMomentum/totalMass+(o2.getMomentumY()-o1.getMomentumY())*recoil/o1.mass);
+        o2.setVelocityY(totalMomentum/totalMass+(o1.getMomentumY()-o2.getMomentumY())*recoil/o2.mass);
     }
 }

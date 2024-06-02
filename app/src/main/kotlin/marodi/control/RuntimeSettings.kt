@@ -4,7 +4,7 @@ import java.awt.Color
 
 class RuntimeSettings {
 
-    // SCREEN
+    // SCREEN (just what they are set to at launch)
     var windowTitle = "Game Window"
     var screenWidth = 900
     var screenHeight = 900

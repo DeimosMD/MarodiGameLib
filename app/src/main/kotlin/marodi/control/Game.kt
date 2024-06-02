@@ -11,15 +11,17 @@ import marodi.physics.PhysicalPositional
 import marodi.physics.Physics
 import marodi.resource.Loader
 import java.util.*
+import javax.swing.JFrame
 
-public open class Game {
-    internal lateinit var graphicsPanel: GraphicsPanel
+public abstract class Game {
+
+    public lateinit var graphicsPanel: GraphicsPanel
         private set
     internal lateinit var gameHandler: GameHandler
     public var runtimeSettings = RuntimeSettings()
     public lateinit var keyHandler: KeyHandler
     public lateinit var camera: Camera
-    public var screen: Screen
+    internal var screen: Screen?
         private set
     public lateinit var loader: Loader
     public var currentWorld: World
@@ -31,7 +33,7 @@ public open class Game {
         private set
     public val statDraw get() = graphicsPanel.graphics2D!!
     public var running = true
-        private set
+        internal set
     public val activePhysicalPositionals: Vector<PhysicalPositional>
         get() {
             val v = Vector<PhysicalPositional>()
@@ -65,7 +67,7 @@ public open class Game {
     public open fun launch() {
         graphicsPanel.init()
         keyHandler.init()
-        screen.init()
+        screen?.init()
         gameHandler.init()
         gameHandler.thread.start()
     }
@@ -76,5 +78,25 @@ public open class Game {
 
     public fun addSprite(s: Sprite) {
         currentWorld.add(s)
+    }
+
+    // used by engine
+    public fun runInPanel(): GraphicsPanel {
+        screen = null
+        return graphicsPanel
+    }
+
+    // used by engine
+    public fun runInNewWindow() {
+        screen!!.defaultCloseOperation = JFrame.DISPOSE_ON_CLOSE
+    }
+
+    // used by engine
+    public fun waitUntilClosed() {
+        while (running) {
+            Thread.sleep(gameHandler.latestSleepTimeMS)
+            if (gameHandler.trackFPS.frozen)
+                close()
+        }
     }
 }

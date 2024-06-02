@@ -37,7 +37,6 @@ public abstract class Positional {
         this.y = y;
     }
 
-
     public void incX(float x) {
         this.x += x;
     }

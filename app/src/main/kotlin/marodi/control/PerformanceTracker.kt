@@ -6,6 +6,7 @@ class PerformanceTracker (
 ) {
     val label get() = _label
     var rate = 0
+    var frozen = false
 
     fun increaseNum() {
         SecTimer(this).thread.start()

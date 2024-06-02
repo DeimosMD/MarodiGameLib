@@ -30,11 +30,15 @@ public class Physics {
                 );
             }
         }
-        collisionHandler.updateFriction(physList, game.getFrameProportion());
         for (PhysicalPositional ph : physList) {
             ph.changePosByVelocity(game.getFrameProportion());
         }
-        collisionHandler.updateCollision(physList);
+        // helps to account for computer rounding errors
+        for (PhysicalPositional ph : physList) {
+            ph.setX(roundToThousandth(ph.getX()));
+            ph.setY(roundToThousandth(ph.getY()));
+        }
+        collisionHandler.updateCollision(physList, getBaseFrictionalResistance());
     }
 
     static double radiansToDegrees(double radians) {
@@ -43,6 +47,13 @@ public class Physics {
 
     static double degreesToRadians(double degrees) {
         return degrees * (Math.PI/180);
+    }
+
+    static float roundToThousandth(float num) {
+        if ((num*1_000) % 1 < 0.5)
+            return (float) Math.floor(num*1_000)/1_000;
+        else
+            return (float) Math.ceil(num*1_000)/1_000;
     }
 
     public float getGravity() {

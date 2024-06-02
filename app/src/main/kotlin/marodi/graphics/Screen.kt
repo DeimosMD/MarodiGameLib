@@ -7,8 +7,11 @@ class Screen internal constructor (
     private val runtimeSettings: RuntimeSettings
 ) : JFrame() {
 
-    fun init() {
+    init {
         defaultCloseOperation = EXIT_ON_CLOSE
+    }
+
+    fun init() {
         setSize(runtimeSettings.screenWidth, runtimeSettings.screenHeight)
         isResizable = runtimeSettings.isResizable
         title = runtimeSettings.windowTitle

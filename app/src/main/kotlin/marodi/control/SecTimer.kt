@@ -15,6 +15,7 @@ class SecTimer(
         }
         tracker.rate--
         if (tracker.rate == 0) {
+            tracker.frozen = true
             println("Warning: ${tracker.label} Frozen")
         }
     }

@@ -1,6 +1,7 @@
 package marodi.physics;
 
 public enum Direction {
+
     ALL,
     DOWN,
     UP,
@@ -8,5 +9,13 @@ public enum Direction {
     RIGHT,
     VERTICAL,
     HORIZONTAL,
-    NONE
+    NONE;
+
+    boolean isAnyHorizontal() {
+        return this == ALL || this == HORIZONTAL || this == RIGHT || this == LEFT;
+    }
+
+    boolean isAnyVertical() {
+        return this == ALL || this == VERTICAL || this == UP || this == DOWN;
+    }
 }
