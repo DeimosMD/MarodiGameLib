@@ -2,7 +2,6 @@ package marodi.physics;
 
 import marodi.component.Positional;
 
-import java.util.Vector;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public abstract class PhysicalPositional extends Positional {
