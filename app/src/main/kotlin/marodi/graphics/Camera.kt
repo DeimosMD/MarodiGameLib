@@ -37,7 +37,7 @@ public class Camera internal constructor (
                 val dx = toScreenX(x)
                 val dy = toScreenY(y) - img.height
             if (isOnScreen(dx, dy, img.width, img.height))
-                graphicsPanel.graphics2D?.drawImage(img, dx, dy, null)
+                graphicsPanel.graphics2D!!.drawImage(img, dx, dy, null)
         }
     }
 
@@ -50,9 +50,9 @@ public class Camera internal constructor (
             val dx = toScreenX(x)
             val dy = toScreenY(y) - ih
         if (isOnScreen(dx, dy, w.toInt(), ih)) {
-            graphicsPanel.graphics2D?.color = color
-            graphicsPanel.graphics2D?.fillRect(dx, dy, w.toInt(), ih)
-            graphicsPanel.graphics2D?.color = null
+            graphicsPanel.graphics2D!!.color = color
+            graphicsPanel.graphics2D!!.fillRect(dx, dy, w.toInt(), ih)
+            graphicsPanel.graphics2D!!.color = null
         }
     }
 

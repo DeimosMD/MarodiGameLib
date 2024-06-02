@@ -24,8 +24,8 @@ class GraphicsPanel (
     }
 
 
-    override fun paint(g: Graphics) {
-        super.paint(g)
+    override fun paintComponent(g: Graphics) {
+        super.paintComponent(g)
         graphics2D = g as Graphics2D
         world.draw(game)
         if (!game.drawList.isEmpty())

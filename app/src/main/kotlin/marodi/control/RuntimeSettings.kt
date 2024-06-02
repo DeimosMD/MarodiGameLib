@@ -17,4 +17,7 @@ class RuntimeSettings {
 
     // DEBUG
     var isPrintFramesPerSecond = false
+
+    // OPTIMIZATION
+    var garbageCollectorFrequency = 20 // runs gc every x frames
 }

@@ -64,9 +64,11 @@ class GameHandler (
                 lastUpdateTimeNS = System.nanoTime()
                 update()
                 graphicsPanel.repaint()
+                if (game.frameNum % runtimeSettings.garbageCollectorFrequency == 0) {
+                    System.gc()
+                    System.runFinalization()
+                }
             }
-            System.gc()
-            System.runFinalization()
         }
     }
 }

@@ -122,7 +122,17 @@ public final class CollisionHandler {
         for (PhysicalPositional ph : physList) {
             ph.colX = ph.getX();
         }
-        while (!toEvaluate.isEmpty()) {
+        int maxIterations = 0; // a VERY generous maximum number of iterations
+        for (PhysicalPositional ph : toEvaluate) {
+            maxIterations += 4; // for hard stoppages
+            maxIterations += ph.collisionObjectPairListVertical.size();
+        }
+        // everything should be evaluated a maximum of three times
+        // otherwise there is probably an impossible scenario
+        maxIterations *= 3;
+        int iterations = 0;
+        while (!toEvaluate.isEmpty() && iterations < maxIterations) {
+            iterations++;
             for (PhysicalPositional ph : physList) {
                 ph.colY = ph.getY();
             }
@@ -142,7 +152,6 @@ public final class CollisionHandler {
                     if (toBeReevaluated.get(i) == toBeReevaluated.get(j) && i != j) {
                         toBeReevaluated.remove(j);
                         j--;
-                        i--;
                     }
                 }
             }
@@ -159,7 +168,17 @@ public final class CollisionHandler {
         for (PhysicalPositional ph : physList) {
             ph.colY = ph.getY();
         }
-        while (!toEvaluate.isEmpty()) {
+        int maxIterations = 0;
+        for (PhysicalPositional ph : toEvaluate) {
+            maxIterations += 2; // for hard stoppages
+            maxIterations += ph.collisionObjectPairListHorizontal.size();
+        }
+        // everything should be evaluated a maximum of three times
+        // otherwise there is probably an impossible scenario
+        maxIterations *= 3;
+        int iterations = 0;
+        while (!toEvaluate.isEmpty() && iterations < maxIterations) {
+            iterations++;
             for (PhysicalPositional ph : physList) {
                 ph.colX = ph.getX();
             }
@@ -179,7 +198,6 @@ public final class CollisionHandler {
                     if (toBeReevaluated.get(i) == toBeReevaluated.get(j) && i != j) {
                         toBeReevaluated.remove(j);
                         j--;
-                        i--;
                     }
                 }
             }
