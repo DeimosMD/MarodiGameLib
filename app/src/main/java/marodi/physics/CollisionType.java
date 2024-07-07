@@ -7,50 +7,53 @@ public class CollisionType {
     private Direction direction;
     private boolean frictional;
     private float recoil;
-    private boolean oneWay; // if o2 should push o1 but not vice versa
+    private CollisionFunctionType functionType; // if o2 should push o1 but not vice versa, it should push two ways, or there is no collision adjustment and it is simply detection
     private OnCollision onCollisionScript = null;
 
-    public CollisionType(Direction direction, boolean frictional, float recoil, boolean oneWay) {
+    public CollisionType(Direction direction, boolean frictional, float recoil, CollisionFunctionType functionType) {
         this.direction = direction;
         this.frictional = frictional;
         this.recoil = recoil;
-        this.oneWay = oneWay;
+        this.functionType = functionType;
     }
 
-    public CollisionType(Direction direction, boolean frictional, float recoil, boolean oneWay, OnCollision onCollisionScript) {
+    public CollisionType(Direction direction, boolean frictional, float recoil, CollisionFunctionType functionType, OnCollision onCollisionScript) {
         this.direction = direction;
         this.frictional = frictional;
         this.recoil = recoil;
-        this.oneWay = oneWay;
+        this.functionType = functionType;
         this.onCollisionScript = onCollisionScript;
     }
 
-    boolean collideVertical(PhysicalPositional o1, PhysicalPositional o2) {
+    // TODO account for barriers
+    boolean collideVertical(PhysicalPositional o1, PhysicalPositional o2, boolean doVeloAndScript) {
         float y = checkY(o2, o1, direction);
         if (y != 0) {
-            if (oneWay) {
+            if (functionType == CollisionFunctionType.ONE_WAY) {
                 o2.incY(y);
-                o2.velocityY = o1.velocityY + (o1.velocityY - o2.velocityY) * recoil;
-            } else {
-                twoWayAdjustY(o1, o2, y);
+                if (doVeloAndScript)
+                    o2.velocityY = o1.velocityY + (o1.velocityY - o2.velocityY) * recoil;
+            } else if (functionType == CollisionFunctionType.TWO_WAY){
+                twoWayAdjustY(o1, o2, y, doVeloAndScript);
             }
-            if (onCollisionScript != null)
+            if (onCollisionScript != null && doVeloAndScript)
                 onCollisionScript.onCollision(o1, o2);
             return true;
         }
         return false;
     }
 
-    boolean collideHorizontal(PhysicalPositional o1, PhysicalPositional o2) {
+    boolean collideHorizontal(PhysicalPositional o1, PhysicalPositional o2, boolean doVeloAndScript) {
         float x = checkX(o2, o1, direction);
         if (x != 0) {
-            if (oneWay) {
+            if (functionType == CollisionFunctionType.ONE_WAY) {
                 o2.incX(x);
-                o2.velocityX = o1.velocityX + (o1.velocityX - o2.velocityX) * recoil;
-            } else {
-                twoWayAdjustX(o1, o2, x);
+                if (doVeloAndScript)
+                    o2.velocityX = o1.velocityX + (o1.velocityX - o2.velocityX) * recoil;
+            } else if (functionType == CollisionFunctionType.TWO_WAY){
+                twoWayAdjustX(o1, o2, x, doVeloAndScript);
             }
-            if (onCollisionScript != null)
+            if (onCollisionScript != null && doVeloAndScript)
                 onCollisionScript.onCollision(o1, o2);
             return true;
         }
@@ -68,7 +71,7 @@ public class CollisionType {
                                 frameProportion
                         );
                 if (x != 0) {
-                    if (oneWay) {
+                    if (functionType == CollisionFunctionType.ONE_WAY) {
                         float normalForce = Math.abs(o1.velocityX - o2.velocityX); // velocity at which they are colliding, as weight is not considered
                         float frictionalForce = normalForce * frictionalCoefficient;
                         // uses y velocity because that is the axis on which they are experiencing friction, not colliding
@@ -84,7 +87,7 @@ public class CollisionType {
                     }
                 }
                 if (y != 0) {
-                    if (oneWay) {
+                    if (functionType == CollisionFunctionType.ONE_WAY) {
                         float normalForce = Math.abs(o1.velocityY - o2.velocityY);
                         float frictionalForce = normalForce * frictionalCoefficient;
                         if (Math.abs(o1.velocityX - o2.velocityX) <= frictionalForce) {
@@ -102,38 +105,6 @@ public class CollisionType {
             }
         }
         return false;
-    }
-
-    public Direction getDirection() {
-        return direction;
-    }
-
-    public void setDirection(Direction direction) {
-        this.direction = direction;
-    }
-
-    public boolean isFrictional() {
-        return frictional;
-    }
-
-    public void setFrictional(boolean frictional) {
-        this.frictional = frictional;
-    }
-
-    public float getRecoil() {
-        return recoil;
-    }
-
-    public void setRecoil(float recoil) {
-        this.recoil = recoil;
-    }
-
-    public boolean isNotOneWay() {
-        return !oneWay;
-    }
-
-    public void setOneWay(boolean oneWay) {
-        this.oneWay = oneWay;
     }
 
     // tests if two objects are colliding on an axis that's being tested according to the direction
@@ -239,7 +210,7 @@ public class CollisionType {
         return x;
     }
 
-    private void twoWayAdjustX(PhysicalPositional o1, PhysicalPositional o2, float x) {
+    private void twoWayAdjustX(PhysicalPositional o1, PhysicalPositional o2, float x, boolean doVeloAndScript) {
         float totalMomentum = o1.getMomentumX() + o2.getMomentumX();
         float totalMass = o1.mass + o2.mass;
         if (Math.abs(o1.getMomentumX()) > Math.abs(o2.getMomentumX()))
@@ -250,11 +221,13 @@ public class CollisionType {
             o1.incX(-x/2);
             o2.incX(x/2);
         }
-        o1.setVelocityX(totalMomentum/totalMass+(o2.getMomentumX()-o1.getMomentumX())*recoil/o1.mass);
-        o2.setVelocityX(totalMomentum/totalMass+(o1.getMomentumX()-o2.getMomentumX())*recoil/o2.mass);
+        if (doVeloAndScript) {
+            o1.setVelocityX(totalMomentum / totalMass + (o2.getMomentumX() - o1.getMomentumX()) * recoil / o1.mass);
+            o2.setVelocityX(totalMomentum / totalMass + (o1.getMomentumX() - o2.getMomentumX()) * recoil / o2.mass);
+        }
     }
 
-    private void twoWayAdjustY(PhysicalPositional o1, PhysicalPositional o2, float y) {
+    private void twoWayAdjustY(PhysicalPositional o1, PhysicalPositional o2, float y, boolean doVeloAndScript) {
         float totalMomentum = o1.getMomentumY() + o2.getMomentumY();
         float totalMass = o1.mass + o2.mass;
         if (Math.abs(o1.getMomentumY()) > Math.abs(o2.getMomentumY()))
@@ -265,7 +238,41 @@ public class CollisionType {
             o1.incY(-y/2);
             o2.incY(y/2);
         }
-        o1.setVelocityY(totalMomentum/totalMass+(o2.getMomentumY()-o1.getMomentumY())*recoil/o1.mass);
-        o2.setVelocityY(totalMomentum/totalMass+(o1.getMomentumY()-o2.getMomentumY())*recoil/o2.mass);
+        if (doVeloAndScript) {
+            o1.setVelocityY(totalMomentum / totalMass + (o2.getMomentumY() - o1.getMomentumY()) * recoil / o1.mass);
+            o2.setVelocityY(totalMomentum / totalMass + (o1.getMomentumY() - o2.getMomentumY()) * recoil / o2.mass);
+        }
+    }
+
+    public Direction getDirection() {
+        return direction;
+    }
+
+    public void setDirection(Direction direction) {
+        this.direction = direction;
+    }
+
+    public boolean isFrictional() {
+        return frictional;
+    }
+
+    public void setFrictional(boolean frictional) {
+        this.frictional = frictional;
+    }
+
+    public float getRecoil() {
+        return recoil;
+    }
+
+    public void setRecoil(float recoil) {
+        this.recoil = recoil;
+    }
+
+    public CollisionFunctionType getFunctionType() {
+        return functionType;
+    }
+
+    public void setFunctionType(CollisionFunctionType functionType) {
+        this.functionType = functionType;
     }
 }

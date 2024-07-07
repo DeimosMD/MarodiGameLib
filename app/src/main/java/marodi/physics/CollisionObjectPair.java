@@ -1,13 +1,27 @@
 package marodi.physics;
 
-record CollisionObjectPair(PhysicalPositional o1, PhysicalPositional o2, CollisionType col) {
+class CollisionObjectPair {
+
+    final PhysicalPositional o1;
+    final PhysicalPositional o2;
+    final CollisionType col;
+
+    // if it is the first time in this frame that the collision is being called
+    boolean firstTimeCallingHorizontal = true;
+    boolean firstTimeCallingVertical = true;
+
+    CollisionObjectPair(PhysicalPositional o1, PhysicalPositional o2, CollisionType col) {
+        this.o1 = o1;
+        this.o2 = o2;
+        this.col = col;
+    }
 
     boolean runVerticalCollision() {
-        return col.collideVertical(o1, o2);
+        return col.collideVertical(o1, o2, firstTimeCallingVertical);
     }
 
     boolean runHorizontalCollision() {
-        return col.collideHorizontal(o1, o2);
+        return col.collideHorizontal(o1, o2, firstTimeCallingHorizontal);
     }
 
     boolean runApplyFriction(float frameProportion) {
@@ -16,8 +30,8 @@ record CollisionObjectPair(PhysicalPositional o1, PhysicalPositional o2, Collisi
 
     boolean isDuplicate(CollisionObjectPair o) {
         if (o == this) return false;
-        if (o.o1() == o1 && o.o2() == o2 && o.col() == col) return true;
-        if (o.o1() == o2 && o.o2() == o1 && o.col() == col && col.isNotOneWay()) return true;
+        if (o.o1 == o1 && o.o2 == o2 && o.col == col) return true;
+        if (o.o1 == o2 && o.o2 == o1 && o.col == col && col.getFunctionType() != CollisionFunctionType.ONE_WAY) return true;
         return false;
     }
 }

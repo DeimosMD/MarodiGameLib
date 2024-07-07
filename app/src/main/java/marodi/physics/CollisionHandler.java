@@ -101,13 +101,15 @@ public final class CollisionHandler {
     }
 
     void updateCollision(Vector<PhysicalPositional> physList, float frameProportion) {
-        for (PhysicalPositional ph : physList) {
-            ph.horizontalCollision = Direction.NONE;
-            ph.verticalCollision = Direction.NONE;
-        }
         if (!physList.equals(recentPhysList)) {
             recentPhysList = new Vector<>(physList);
             updateCollisionObjectPairList(recentPhysList);
+        }
+        for (PhysicalPositional ph : physList) {
+            ph.horizontalCollision = Direction.NONE;
+            ph.verticalCollision = Direction.NONE;
+            for (CollisionObjectPair c : ph.collisionObjectPairListVertical) c.firstTimeCallingVertical = true;
+            for (CollisionObjectPair c : ph.collisionObjectPairListHorizontal) c.firstTimeCallingHorizontal = true;
         }
         updateVerticalCollision(physList);
         updateHorizontalCollision(physList);
@@ -122,27 +124,19 @@ public final class CollisionHandler {
         for (PhysicalPositional ph : physList) {
             ph.colX = ph.getX();
         }
-        int maxIterations = 0; // a VERY generous maximum number of iterations
-        for (PhysicalPositional ph : toEvaluate) {
-            maxIterations += 4; // for hard stoppages
-            maxIterations += ph.collisionObjectPairListVertical.size();
-        }
-        // everything should be evaluated a maximum of three times
-        // otherwise there is probably an impossible scenario
-        maxIterations *= 3;
-        int iterations = 0;
-        while (!toEvaluate.isEmpty() && iterations < maxIterations) {
-            iterations++;
+        while (!toEvaluate.isEmpty()) {
             for (PhysicalPositional ph : physList) {
                 ph.colY = ph.getY();
             }
             for (PhysicalPositional ph : toEvaluate) {
-                for (CollisionObjectPair c : ph.collisionObjectPairListVertical)
+                for (CollisionObjectPair c : ph.collisionObjectPairListVertical) {
                     if (c.runVerticalCollision()) {
-                        toBeReevaluated.add(c.o1());
-                        if (c.col().isNotOneWay())
-                            toBeReevaluated.add(c.o2());
+                        toBeReevaluated.add(c.o1);
+                        if (c.col.getFunctionType() == CollisionFunctionType.TWO_WAY)
+                            toBeReevaluated.add(c.o2);
                     }
+                    c.firstTimeCallingVertical = false;
+                }
                 if (checkHardStoppagesVertical(ph))
                     toBeReevaluated.add(ph);
             }
@@ -160,6 +154,7 @@ public final class CollisionHandler {
         }
     }
 
+    // TODO update this after updateVerticalCollision
     private void updateHorizontalCollision(Vector<PhysicalPositional> physList) {
         // loops again if any are colliding in case one collision causes another
         Vector<PhysicalPositional> toEvaluate = new Vector<>(physList); // colliding in the current iteration
@@ -183,12 +178,14 @@ public final class CollisionHandler {
                 ph.colX = ph.getX();
             }
             for (PhysicalPositional ph : toEvaluate) {
-                for (CollisionObjectPair c : ph.collisionObjectPairListHorizontal)
+                for (CollisionObjectPair c : ph.collisionObjectPairListHorizontal) {
                     if (c.runHorizontalCollision()) {
-                        toBeReevaluated.add(c.o1());
-                        if (c.col().isNotOneWay())
-                            toBeReevaluated.add(c.o2());
+                        toBeReevaluated.add(c.o1);
+                        if (c.col.getFunctionType() == CollisionFunctionType.TWO_WAY)
+                            toBeReevaluated.add(c.o2);
                     }
+                    c.firstTimeCallingHorizontal = false;
+                }
                 if (checkHardStoppagesHorizontal(ph))
                     toBeReevaluated.add(ph);
             }
@@ -229,16 +226,16 @@ public final class CollisionHandler {
         for (ObjectRelation r : objectRelationList) {
             CollisionObjectPair c = new CollisionObjectPair(r.o1(), r.o2(), r.collisionType);
             if (r.collisionType().getDirection().isAnyHorizontal()) {
-                c.o1().collisionObjectPairListHorizontal.add(c);
-                c.o2().collisionObjectPairListHorizontal.add(c);
+                c.o1.collisionObjectPairListHorizontal.add(c);
+                c.o2.collisionObjectPairListHorizontal.add(c);
             }
             if (r.collisionType().getDirection().isAnyVertical()) {
-                c.o1().collisionObjectPairListVertical.add(c);
-                c.o2().collisionObjectPairListVertical.add(c);
+                c.o1.collisionObjectPairListVertical.add(c);
+                c.o2.collisionObjectPairListVertical.add(c);
             }
             if (r.collisionType().isFrictional()) {
-                c.o1().collisionObjectPairListFrictional.add(c);
-                c.o2().collisionObjectPairListFrictional.add(c);
+                c.o1.collisionObjectPairListFrictional.add(c);
+                c.o2.collisionObjectPairListFrictional.add(c);
             }
         }
         for (TypeObjectRelation r : typeObjectRelationList) {
@@ -246,16 +243,16 @@ public final class CollisionHandler {
                 if (r.t().isInstance(ph)) {
                     CollisionObjectPair c = new CollisionObjectPair(ph, r.o(), r.collisionType);
                     if (r.collisionType().getDirection().isAnyHorizontal()) {
-                        c.o1().collisionObjectPairListHorizontal.add(c);
-                        c.o2().collisionObjectPairListHorizontal.add(c);
+                        c.o1.collisionObjectPairListHorizontal.add(c);
+                        c.o2.collisionObjectPairListHorizontal.add(c);
                     }
                     if (r.collisionType().getDirection().isAnyVertical()) {
-                        c.o1().collisionObjectPairListVertical.add(c);
-                        c.o2().collisionObjectPairListVertical.add(c);
+                        c.o1.collisionObjectPairListVertical.add(c);
+                        c.o2.collisionObjectPairListVertical.add(c);
                     }
                     if (r.collisionType().isFrictional()) {
-                        c.o1().collisionObjectPairListFrictional.add(c);
-                        c.o2().collisionObjectPairListFrictional.add(c);
+                        c.o1.collisionObjectPairListFrictional.add(c);
+                        c.o2.collisionObjectPairListFrictional.add(c);
                     }
                 }
             }
@@ -265,16 +262,16 @@ public final class CollisionHandler {
                 if (r.t().isInstance(ph)) {
                     CollisionObjectPair c = new CollisionObjectPair(r.o(), ph, r.collisionType);
                     if (r.collisionType().getDirection().isAnyHorizontal()) {
-                        c.o1().collisionObjectPairListHorizontal.add(c);
-                        c.o2().collisionObjectPairListHorizontal.add(c);
+                        c.o1.collisionObjectPairListHorizontal.add(c);
+                        c.o2.collisionObjectPairListHorizontal.add(c);
                     }
                     if (r.collisionType().getDirection().isAnyVertical()) {
-                        c.o1().collisionObjectPairListVertical.add(c);
-                        c.o2().collisionObjectPairListVertical.add(c);
+                        c.o1.collisionObjectPairListVertical.add(c);
+                        c.o2.collisionObjectPairListVertical.add(c);
                     }
                     if (r.collisionType().isFrictional()) {
-                        c.o1().collisionObjectPairListFrictional.add(c);
-                        c.o2().collisionObjectPairListFrictional.add(c);
+                        c.o1.collisionObjectPairListFrictional.add(c);
+                        c.o2.collisionObjectPairListFrictional.add(c);
                     }
                 }
         for (TypeRelation r : typeRelationList)
@@ -284,16 +281,16 @@ public final class CollisionHandler {
                         if (r.t2().isInstance(ph2)) {
                             CollisionObjectPair c = new CollisionObjectPair(ph1, ph2, r.collisionType);
                             if (r.collisionType().getDirection().isAnyHorizontal()) {
-                                c.o1().collisionObjectPairListHorizontal.add(c);
-                                c.o2().collisionObjectPairListHorizontal.add(c);
+                                c.o1.collisionObjectPairListHorizontal.add(c);
+                                c.o2.collisionObjectPairListHorizontal.add(c);
                             }
                             if (r.collisionType().getDirection().isAnyVertical()) {
-                                c.o1().collisionObjectPairListVertical.add(c);
-                                c.o2().collisionObjectPairListVertical.add(c);
+                                c.o1.collisionObjectPairListVertical.add(c);
+                                c.o2.collisionObjectPairListVertical.add(c);
                             }
                             if (r.collisionType().isFrictional()) {
-                                c.o1().collisionObjectPairListFrictional.add(c);
-                                c.o2().collisionObjectPairListFrictional.add(c);
+                                c.o1.collisionObjectPairListFrictional.add(c);
+                                c.o2.collisionObjectPairListFrictional.add(c);
                             }
                         }
         // checks for and removes any identical CollisionObjectPairs
