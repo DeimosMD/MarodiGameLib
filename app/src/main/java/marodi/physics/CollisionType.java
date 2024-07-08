@@ -167,6 +167,7 @@ public class CollisionType {
     // if colliding on axis then return amount to adjust o1 on that axis so that it would no longer be colliding with o2 on that axis
     // else return 0
     private float getVerticalCollisionOffset(PhysicalPositional o1, PhysicalPositional o2) {
+        if (o1.getWorld() != o2.getWorld()) return 0;
         float y = 0;
         for (Hitbox h1 : o1.hitbox)
             for (Hitbox h2 : o2.hitbox) {
@@ -189,6 +190,7 @@ public class CollisionType {
     }
 
     private float getHorizontalCollisionOffset(PhysicalPositional o1, PhysicalPositional o2) {
+        if (o1.getWorld() != o2.getWorld()) return 0;
         float x = 0;
         for (Hitbox h1 : o1.hitbox)
             for (Hitbox h2 : o2.hitbox) {
