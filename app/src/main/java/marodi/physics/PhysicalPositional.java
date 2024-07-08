@@ -54,6 +54,11 @@ public abstract class PhysicalPositional extends Positional {
         this.horizontalResistance = resistance;
     }
 
+    public void setResistance(float resistance) {
+        setVerticalResistance(resistance);
+        setHorizontalResistance(resistance);
+    }
+
     public void setSpecificFrictionalCoefficient(float resistance) {
         if (resistance < 0 || resistance > 1) throw (new IllegalArgumentException());
         this.specificFrictionalCoefficient = resistance;
