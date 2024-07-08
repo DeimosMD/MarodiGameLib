@@ -9,8 +9,10 @@ public abstract class PhysicalPositional extends Positional {
     private float verticalResistance;
     private float horizontalResistance;
     private float specificFrictionalCoefficient;
-    Direction verticalCollision = Direction.NONE;
-    Direction horizontalCollision = Direction.NONE;
+    boolean collidingUp = false;
+    boolean collidingDown = false;
+    boolean collidingLeft = false;
+    boolean collidingRight = false;
     protected Hitbox[] hitbox =  {};
     protected float velocityX = 0;
     protected float velocityY = 0;
@@ -156,14 +158,6 @@ public abstract class PhysicalPositional extends Positional {
         this.velocityY += inc;
     }
 
-    protected Direction getVerticalCollision() {
-        return verticalCollision;
-    }
-
-    protected Direction getHorizontalCollision() {
-        return horizontalCollision;
-    }
-
     public float getMass() {
         return mass;
     }
@@ -222,5 +216,21 @@ public abstract class PhysicalPositional extends Positional {
 
     public void setDirectionRadians(double directionRadians) {
         this.directionRadians = directionRadians;
+    }
+
+    public boolean isCollidingUp() {
+        return collidingUp;
+    }
+
+    public boolean isCollidingDown() {
+        return collidingDown;
+    }
+
+    public boolean isCollidingLeft() {
+        return collidingLeft;
+    }
+
+    public boolean isCollidingRight() {
+        return collidingRight;
     }
 }

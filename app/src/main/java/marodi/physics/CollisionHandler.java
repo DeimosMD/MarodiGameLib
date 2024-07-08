@@ -106,8 +106,10 @@ public final class CollisionHandler {
             updateCollisionObjectPairList(recentPhysList);
         }
         for (PhysicalPositional ph : physList) {
-            ph.horizontalCollision = Direction.NONE;
-            ph.verticalCollision = Direction.NONE;
+            ph.collidingUp = false;
+            ph.collidingDown = false;
+            ph.collidingLeft = false;
+            ph.collidingRight = false;
             for (CollisionObjectPair c : ph.collisionObjectPairListVertical) c.firstTimeCallingVertical = true;
             for (CollisionObjectPair c : ph.collisionObjectPairListHorizontal) c.firstTimeCallingHorizontal = true;
         }
@@ -324,7 +326,7 @@ public final class CollisionHandler {
                 if (r > ph.upStoppagePoint) {
                     b = true;
                     ph.incY(ph.upStoppagePoint - r);
-                    ph.verticalCollision = Direction.UP;
+                    ph.collidingUp = true;
                     if (ph.upStoppageScript == null)
                         ph.setVelocityY(0);
                     else
@@ -336,7 +338,7 @@ public final class CollisionHandler {
                 if (r < ph.downStoppagePoint) {
                     b = true;
                     ph.incY(ph.downStoppagePoint - r);
-                    ph.verticalCollision = Direction.DOWN;
+                    ph.collidingDown = true;
                     if (ph.downStoppageScript == null)
                         ph.setVelocityY(0);
                     else
@@ -355,7 +357,7 @@ public final class CollisionHandler {
                 if (r > ph.rightStoppagePoint) {
                     b = true;
                     ph.incX(ph.rightStoppagePoint - r);
-                    ph.horizontalCollision = Direction.RIGHT;
+                    ph.collidingRight = true;
                     if (ph.rightStoppageScript == null)
                         ph.setVelocityX(0);
                     else
@@ -367,7 +369,7 @@ public final class CollisionHandler {
                 if (r < ph.leftStoppagePoint) {
                     b = true;
                     ph.incX(ph.leftStoppagePoint - r);
-                    ph.horizontalCollision = Direction.LEFT;
+                    ph.collidingLeft = true;
                     if (ph.leftStoppageScript == null)
                         ph.setVelocityX(0);
                     else

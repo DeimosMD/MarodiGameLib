@@ -113,12 +113,12 @@ public class CollisionType {
         if (direction == Direction.DOWN || direction == Direction.UP || direction == Direction.VERTICAL || direction == Direction.ALL) {
             float y = getVerticalCollisionOffset(pushed, pusher);
             if ((direction == Direction.DOWN || direction == Direction.VERTICAL || direction == Direction.ALL) && y > 0) {
-                pushed.verticalCollision = Direction.DOWN;
-                pusher.verticalCollision = Direction.UP;
+                pushed.collidingDown = true;
+                pusher.collidingUp = true;
                 return y;
             } else if ((direction == Direction.UP || direction == Direction.VERTICAL || direction == Direction.ALL) && y < 0) {
-                pushed.verticalCollision = Direction.UP;
-                pusher.verticalCollision = Direction.DOWN;
+                pushed.collidingUp = true;
+                pusher.collidingDown = true;
                 return y;
             }
         }
@@ -129,12 +129,12 @@ public class CollisionType {
         if (direction == Direction.LEFT || direction == Direction.RIGHT || direction == Direction.HORIZONTAL || direction == Direction.ALL) {
             float x = getHorizontalCollisionOffset(pushed, pusher);
             if ((direction == Direction.LEFT || direction == Direction.HORIZONTAL || direction == Direction.ALL) && x > 0) {
-                pushed.horizontalCollision = Direction.LEFT;
-                pusher.horizontalCollision = Direction.RIGHT;
+                pushed.collidingLeft = true;
+                pusher.collidingRight = true;
                 return x;
             } else if ((direction == Direction.RIGHT || direction == Direction.HORIZONTAL || direction == Direction.ALL) && x < 0) {
-                pushed.horizontalCollision = Direction.RIGHT;
-                pusher.horizontalCollision = Direction.LEFT;
+                pushed.collidingRight = true;
+                pusher.collidingLeft = true;
                 return x;
             }
         }
