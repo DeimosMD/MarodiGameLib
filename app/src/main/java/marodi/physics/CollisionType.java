@@ -236,7 +236,6 @@ public class CollisionType {
         return x;
     }
 
-    // TODO account for when a PhysicalPositional has a barrier but is knocked out of the way by a two way collision
     private void twoWayAdjustX(PhysicalPositional o1, PhysicalPositional o2, float x, boolean doVeloAndScript) {
         float totalMomentum = o1.getMomentumX() + o2.getMomentumX();
         float totalMass = o1.mass + o2.mass;
