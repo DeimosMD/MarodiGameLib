@@ -1,6 +1,7 @@
 package marodi.physics;
 
 import marodi.component.Positional;
+import marodi.control.Game;
 
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -43,6 +44,42 @@ public abstract class PhysicalPositional extends Positional {
     CopyOnWriteArrayList<CollisionObjectPair> collisionObjectPairListHorizontal;
     CopyOnWriteArrayList<CollisionObjectPair> collisionObjectPairListVertical;
     CopyOnWriteArrayList<CollisionObjectPair> collisionObjectPairListFrictional;
+
+    // If it has hit an impossible-to-cross barrier in a certain direction; used during collision calculations
+    boolean barrierDown = false;
+    boolean barrierUp = false;
+    boolean barrierLeft = false;
+    boolean barrierRight = false;
+
+    void resetCollisionVariables() {
+            collidingUp = false;
+            collidingDown = false;
+            collidingLeft = false;
+            collidingRight = false;
+            barrierDown = false;
+            barrierUp = false;
+            barrierLeft = false;
+            barrierRight = false;
+            for (CollisionObjectPair c : collisionObjectPairListVertical) c.doVeloAndScript = true;
+    }
+
+    void updatePhysicalVariables(Game game) {
+        if (noVelo) {
+            velocityX = 0;
+            velocityY = 0;
+        } else {
+            prevX = getX();
+            prevY = getY();
+            if (!noGrav)
+                velocityY -= getWorld().getGravity(game) * game.getFrameProportion();
+            changeVelocityWithResistance(
+                    1-(1-getHorizontalResistance())*(1-game.getPhysics().getBaseHorizontalResistance()),
+                    1-(1-getVerticalResistance())*(1-game.getPhysics().getBaseVerticalResistance()),
+                    game.getFrameProportion()
+            );
+            changePosByVelocity(game.getFrameProportion());
+        }
+    }
 
     public void setVerticalResistance(float resistance) {
         if (resistance < 0 || resistance > 1) throw (new IllegalArgumentException());

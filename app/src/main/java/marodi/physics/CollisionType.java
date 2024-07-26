@@ -7,7 +7,7 @@ public class CollisionType {
     private Direction direction;
     private boolean frictional;
     private float recoil;
-    private CollisionFunctionType functionType; // if o2 should push o1 but not vice versa, it should push two ways, or there is no collision adjustment and it is simply detection
+    private CollisionFunctionType functionType; // if o1 should push o2 but not vice versa, it should push two ways, or there is no collision adjustment and it is simply detection
     private OnCollision onCollisionScript = null;
 
     public CollisionType(Direction direction, boolean frictional, float recoil, CollisionFunctionType functionType) {
@@ -25,16 +25,27 @@ public class CollisionType {
         this.onCollisionScript = onCollisionScript;
     }
 
-    // TODO account for barriers
     boolean collideVertical(PhysicalPositional o1, PhysicalPositional o2, boolean doVeloAndScript) {
         float y = checkY(o2, o1, direction);
-        if (y != 0) {
+        if (Math.abs(y) >= EPSILON) {
             if (functionType == CollisionFunctionType.ONE_WAY) {
-                o2.incY(y);
-                if (doVeloAndScript)
-                    o2.velocityY = o1.velocityY + (o1.velocityY - o2.velocityY) * recoil;
+                if ((y < 0 && o2.barrierDown && o1.barrierUp) || (y > 0 && o2.barrierUp && o1.barrierDown)) {
+                    return false;
+                } else if ((y > 0 && o2.barrierDown) || (y < 0 && o2.barrierUp)) {
+                    oneWayAdjustY(o2, o1, -y, doVeloAndScript);
+                } else {
+                    oneWayAdjustY(o1, o2, y, doVeloAndScript);
+                }
             } else if (functionType == CollisionFunctionType.TWO_WAY){
-                twoWayAdjustY(o1, o2, y, doVeloAndScript);
+                if ((y < 0 && o2.barrierDown && o1.barrierUp) || (y > 0 && o2.barrierUp && o1.barrierDown)) {
+                    return false;
+                } else if ((y > 0 && o1.barrierDown) || (y < 0 && o1.barrierUp)) {
+                    oneWayAdjustY(o1, o2, y, doVeloAndScript);
+                } else if ((y > 0 && o2.barrierUp) || (y < 0 && o2.barrierDown)) {
+                    oneWayAdjustY(o2, o1, -y, doVeloAndScript);
+                } else {
+                    twoWayAdjustY(o1, o2, y, doVeloAndScript);
+                }
             }
             if (onCollisionScript != null && doVeloAndScript)
                 onCollisionScript.onCollision(o1, o2);
@@ -45,13 +56,25 @@ public class CollisionType {
 
     boolean collideHorizontal(PhysicalPositional o1, PhysicalPositional o2, boolean doVeloAndScript) {
         float x = checkX(o2, o1, direction);
-        if (x != 0) {
+        if (Math.abs(x) >= EPSILON) {
             if (functionType == CollisionFunctionType.ONE_WAY) {
-                o2.incX(x);
-                if (doVeloAndScript)
-                    o2.velocityX = o1.velocityX + (o1.velocityX - o2.velocityX) * recoil;
+                if ((x < 0 && o2.barrierLeft && o1.barrierRight) || (x > 0 && o2.barrierRight && o1.barrierLeft)) {
+                    return false;
+                } else if ((x > 0 && o2.barrierRight) || (x < 0 && o2.barrierLeft)) {
+                    oneWayAdjustX(o2, o1, -x, doVeloAndScript);
+                } else {
+                    oneWayAdjustX(o1, o2, x, doVeloAndScript);
+                }
             } else if (functionType == CollisionFunctionType.TWO_WAY){
-                twoWayAdjustX(o1, o2, x, doVeloAndScript);
+                if ((x < 0 && o2.barrierLeft && o1.barrierRight) || (x > 0 && o2.barrierRight && o1.barrierLeft)) {
+                    return false;
+                } else if ((x > 0 && o1.barrierRight) || (x < 0 && o1.barrierLeft)) {
+                    oneWayAdjustX(o1, o2, x, doVeloAndScript);
+                } else if ((x > 0 && o2.barrierLeft) || (x < 0 && o2.barrierRight)) {
+                    oneWayAdjustX(o2, o1, -x, doVeloAndScript);
+                } else {
+                    twoWayAdjustX(o1, o2, x, doVeloAndScript);
+                }
             }
             if (onCollisionScript != null && doVeloAndScript)
                 onCollisionScript.onCollision(o1, o2);
@@ -109,6 +132,7 @@ public class CollisionType {
 
     // tests if two objects are colliding on an axis that's being tested according to the direction
     // If so returns offset to make them not collide otherwise returns 0
+    // o2 is always passed to these functions as pushed, which is then passed to get-collision-offset as o1
     private float checkY(PhysicalPositional pushed, PhysicalPositional pusher, Direction direction) {
         if (direction == Direction.DOWN || direction == Direction.UP || direction == Direction.VERTICAL || direction == Direction.ALL) {
             float y = getVerticalCollisionOffset(pushed, pusher);
@@ -212,6 +236,7 @@ public class CollisionType {
         return x;
     }
 
+    // TODO account for when a PhysicalPositional has a barrier but is knocked out of the way by a two way collision
     private void twoWayAdjustX(PhysicalPositional o1, PhysicalPositional o2, float x, boolean doVeloAndScript) {
         float totalMomentum = o1.getMomentumX() + o2.getMomentumX();
         float totalMass = o1.mass + o2.mass;
@@ -243,6 +268,29 @@ public class CollisionType {
         if (doVeloAndScript) {
             o1.setVelocityY(totalMomentum / totalMass + (o2.getMomentumY() - o1.getMomentumY()) * recoil / o1.mass);
             o2.setVelocityY(totalMomentum / totalMass + (o1.getMomentumY() - o2.getMomentumY()) * recoil / o2.mass);
+        }
+    }
+
+    // o2 gets pushed by o1
+    private void oneWayAdjustX(PhysicalPositional o1, PhysicalPositional o2, float x, boolean doVeloAndScript) {
+        o2.incX(x);
+        if (doVeloAndScript)
+            o2.velocityX = o1.velocityX + (o1.velocityX - o2.velocityX) * recoil;
+        if (x > 0) {
+            o2.barrierLeft = true;
+        } else {
+            o2.barrierRight = true;
+        }
+    }
+
+    private void oneWayAdjustY(PhysicalPositional o1, PhysicalPositional o2, float y, boolean doVeloAndScript) {
+        o2.incY(y);
+        if (doVeloAndScript)
+            o2.velocityY = o1.velocityY + (o1.velocityY - o2.velocityY) * recoil;
+        if (y > 0) {
+            o2.barrierDown = true;
+        } else {
+            o2.barrierUp = true;
         }
     }
 

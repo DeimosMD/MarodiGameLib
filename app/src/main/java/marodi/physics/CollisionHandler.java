@@ -105,14 +105,8 @@ public final class CollisionHandler {
             recentPhysList = new Vector<>(physList);
             updateCollisionObjectPairList(recentPhysList);
         }
-        for (PhysicalPositional ph : physList) {
-            ph.collidingUp = false;
-            ph.collidingDown = false;
-            ph.collidingLeft = false;
-            ph.collidingRight = false;
-            for (CollisionObjectPair c : ph.collisionObjectPairListVertical) c.firstTimeCallingVertical = true;
-            for (CollisionObjectPair c : ph.collisionObjectPairListHorizontal) c.firstTimeCallingHorizontal = true;
-        }
+        for (PhysicalPositional ph : physList)
+            ph.resetCollisionVariables();
         updateVerticalCollision(physList);
         updateHorizontalCollision(physList);
         updateFriction(physList, frameProportion);
@@ -127,17 +121,18 @@ public final class CollisionHandler {
             ph.colX = ph.getX();
         }
         while (!toEvaluate.isEmpty()) {
-            for (PhysicalPositional ph : physList) {
-                ph.colY = ph.getY();
-            }
             for (PhysicalPositional ph : toEvaluate) {
+                for (PhysicalPositional ph2 : physList) {
+                    ph2.colY = ph2.getY();
+                }
                 for (CollisionObjectPair c : ph.collisionObjectPairListVertical) {
                     if (c.runVerticalCollision()) {
-                        toBeReevaluated.add(c.o1);
-                        if (c.col.getFunctionType() == CollisionFunctionType.TWO_WAY)
+                        if (c.col.getFunctionType() != CollisionFunctionType.DETECTION) {
+                            toBeReevaluated.add(c.o1);
                             toBeReevaluated.add(c.o2);
+                        }
+                        c.doVeloAndScript = false;
                     }
-                    c.firstTimeCallingVertical = false;
                 }
                 if (checkHardStoppagesVertical(ph))
                     toBeReevaluated.add(ph);
@@ -156,37 +151,25 @@ public final class CollisionHandler {
         }
     }
 
-    // TODO update this after updateVerticalCollision
     private void updateHorizontalCollision(Vector<PhysicalPositional> physList) {
-        // loops again if any are colliding in case one collision causes another
-        Vector<PhysicalPositional> toEvaluate = new Vector<>(physList); // colliding in the current iteration
-        Vector<PhysicalPositional> toBeReevaluated = new Vector<>(); // to collide in the next iteration
-        // isn't affected by these collisions, so it doesn't have to be set after every iteration
+        Vector<PhysicalPositional> toEvaluate = new Vector<>(physList);
+        Vector<PhysicalPositional> toBeReevaluated = new Vector<>();
         for (PhysicalPositional ph : physList) {
             ph.colY = ph.getY();
         }
-        int maxIterations = 0;
-        for (PhysicalPositional ph : toEvaluate) {
-            maxIterations += 2; // for hard stoppages
-            maxIterations += ph.collisionObjectPairListHorizontal.size();
-        }
-        // everything should be evaluated a maximum of three times
-        // otherwise there is probably an impossible scenario
-        maxIterations *= 3;
-        int iterations = 0;
-        while (!toEvaluate.isEmpty() && iterations < maxIterations) {
-            iterations++;
+        while (!toEvaluate.isEmpty()) {
             for (PhysicalPositional ph : physList) {
                 ph.colX = ph.getX();
             }
             for (PhysicalPositional ph : toEvaluate) {
                 for (CollisionObjectPair c : ph.collisionObjectPairListHorizontal) {
                     if (c.runHorizontalCollision()) {
-                        toBeReevaluated.add(c.o1);
-                        if (c.col.getFunctionType() == CollisionFunctionType.TWO_WAY)
+                        if (c.col.getFunctionType() != CollisionFunctionType.DETECTION) {
+                            toBeReevaluated.add(c.o1);
                             toBeReevaluated.add(c.o2);
+                        }
+                        c.doVeloAndScript = false;
                     }
-                    c.firstTimeCallingHorizontal = false;
                 }
                 if (checkHardStoppagesHorizontal(ph))
                     toBeReevaluated.add(ph);
@@ -327,6 +310,7 @@ public final class CollisionHandler {
                     b = true;
                     ph.incY(ph.upStoppagePoint - r);
                     ph.collidingUp = true;
+                    ph.barrierUp = true;
                     if (ph.upStoppageScript == null)
                         ph.setVelocityY(0);
                     else
@@ -339,6 +323,7 @@ public final class CollisionHandler {
                     b = true;
                     ph.incY(ph.downStoppagePoint - r);
                     ph.collidingDown = true;
+                    ph.barrierDown = true;
                     if (ph.downStoppageScript == null)
                         ph.setVelocityY(0);
                     else
@@ -358,6 +343,7 @@ public final class CollisionHandler {
                     b = true;
                     ph.incX(ph.rightStoppagePoint - r);
                     ph.collidingRight = true;
+                    ph.barrierRight = true;
                     if (ph.rightStoppageScript == null)
                         ph.setVelocityX(0);
                     else
@@ -370,6 +356,7 @@ public final class CollisionHandler {
                     b = true;
                     ph.incX(ph.leftStoppagePoint - r);
                     ph.collidingLeft = true;
+                    ph.barrierLeft = true;
                     if (ph.leftStoppageScript == null)
                         ph.setVelocityX(0);
                     else

@@ -6,9 +6,8 @@ class CollisionObjectPair {
     final PhysicalPositional o2;
     final CollisionType col;
 
-    // if it is the first time in this frame that the collision is being called
-    boolean firstTimeCallingHorizontal = true;
-    boolean firstTimeCallingVertical = true;
+    // false if col has already returned true this frame
+    boolean doVeloAndScript = true;
 
     CollisionObjectPair(PhysicalPositional o1, PhysicalPositional o2, CollisionType col) {
         this.o1 = o1;
@@ -17,11 +16,11 @@ class CollisionObjectPair {
     }
 
     boolean runVerticalCollision() {
-        return col.collideVertical(o1, o2, firstTimeCallingVertical);
+        return col.collideVertical(o1, o2, doVeloAndScript);
     }
 
     boolean runHorizontalCollision() {
-        return col.collideHorizontal(o1, o2, firstTimeCallingHorizontal);
+        return col.collideHorizontal(o1, o2, doVeloAndScript);
     }
 
     boolean runApplyFriction(float frameProportion) {

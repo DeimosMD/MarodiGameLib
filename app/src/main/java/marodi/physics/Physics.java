@@ -14,25 +14,8 @@ public class Physics {
 
     public void update(Game game) {
         Vector<PhysicalPositional> physList = game.getActivePhysicalPositionals();
-        for (PhysicalPositional ph : physList) {
-            if (ph.noVelo) {
-                ph.velocityX = 0;
-                ph.velocityY = 0;
-            } else {
-                ph.prevX = ph.getX();
-                ph.prevY = ph.getY();
-                if (!ph.noGrav)
-                    ph.velocityY -= ph.getWorld().getGravity(game) * game.getFrameProportion();
-                ph.changeVelocityWithResistance(
-                        1-(1-ph.getHorizontalResistance())*(1-baseHorizontalResistance),
-                        1-(1-ph.getVerticalResistance())*(1-baseVerticalResistance),
-                        game.getFrameProportion()
-                );
-            }
-        }
-        for (PhysicalPositional ph : physList) {
-            ph.changePosByVelocity(game.getFrameProportion());
-        }
+        for (PhysicalPositional ph : physList)
+            ph.updatePhysicalVariables(game);
         collisionHandler.updateCollision(physList, getBaseFrictionalResistance());
     }
 
