@@ -26,12 +26,13 @@ public class CollisionType {
     }
 
     boolean collideVertical(PhysicalPositional o1, PhysicalPositional o2, boolean doVeloAndScript) {
+        if (o1.noPush && o2.noPush && functionType != CollisionFunctionType.DETECTION) return false;
         float y = checkY(o2, o1, direction);
         if (Math.abs(y) >= EPSILON) {
             if (functionType == CollisionFunctionType.ONE_WAY) {
                 if ((y < 0 && o2.barrierDown && o1.barrierUp) || (y > 0 && o2.barrierUp && o1.barrierDown)) {
                     return false;
-                } else if ((y > 0 && o2.barrierDown) || (y < 0 && o2.barrierUp)) {
+                } else if ((y > 0 && o2.barrierDown) || (y < 0 && o2.barrierUp) || o2.noPush) {
                     oneWayAdjustY(o2, o1, -y, doVeloAndScript);
                 } else {
                     oneWayAdjustY(o1, o2, y, doVeloAndScript);
@@ -39,9 +40,9 @@ public class CollisionType {
             } else if (functionType == CollisionFunctionType.TWO_WAY){
                 if ((y < 0 && o2.barrierDown && o1.barrierUp) || (y > 0 && o2.barrierUp && o1.barrierDown)) {
                     return false;
-                } else if ((y > 0 && o1.barrierDown) || (y < 0 && o1.barrierUp)) {
+                } else if (((y > 0 && o1.barrierDown) || (y < 0 && o1.barrierUp) || o1.noPush) && !o2.noPush) {
                     oneWayAdjustY(o1, o2, y, doVeloAndScript);
-                } else if ((y > 0 && o2.barrierUp) || (y < 0 && o2.barrierDown)) {
+                } else if ((y > 0 && o2.barrierUp) || (y < 0 && o2.barrierDown) || o2.noPush) {
                     oneWayAdjustY(o2, o1, -y, doVeloAndScript);
                 } else {
                     twoWayAdjustY(o1, o2, y, doVeloAndScript);
@@ -55,12 +56,13 @@ public class CollisionType {
     }
 
     boolean collideHorizontal(PhysicalPositional o1, PhysicalPositional o2, boolean doVeloAndScript) {
+        if (o1.noPush && o2.noPush && functionType != CollisionFunctionType.DETECTION) return false;
         float x = checkX(o2, o1, direction);
         if (Math.abs(x) >= EPSILON) {
             if (functionType == CollisionFunctionType.ONE_WAY) {
                 if ((x < 0 && o2.barrierLeft && o1.barrierRight) || (x > 0 && o2.barrierRight && o1.barrierLeft)) {
                     return false;
-                } else if ((x > 0 && o2.barrierRight) || (x < 0 && o2.barrierLeft)) {
+                } else if ((x > 0 && o2.barrierRight) || (x < 0 && o2.barrierLeft) || o2.noPush) {
                     oneWayAdjustX(o2, o1, -x, doVeloAndScript);
                 } else {
                     oneWayAdjustX(o1, o2, x, doVeloAndScript);
@@ -68,9 +70,9 @@ public class CollisionType {
             } else if (functionType == CollisionFunctionType.TWO_WAY){
                 if ((x < 0 && o2.barrierLeft && o1.barrierRight) || (x > 0 && o2.barrierRight && o1.barrierLeft)) {
                     return false;
-                } else if ((x > 0 && o1.barrierRight) || (x < 0 && o1.barrierLeft)) {
+                } else if (((x > 0 && o1.barrierRight) || (x < 0 && o1.barrierLeft) || o1.noPush) && !o2.noPush) {
                     oneWayAdjustX(o1, o2, x, doVeloAndScript);
-                } else if ((x > 0 && o2.barrierLeft) || (x < 0 && o2.barrierRight)) {
+                } else if ((x > 0 && o2.barrierLeft) || (x < 0 && o2.barrierRight) || o2.noPush) {
                     oneWayAdjustX(o2, o1, -x, doVeloAndScript);
                 } else {
                     twoWayAdjustX(o1, o2, x, doVeloAndScript);

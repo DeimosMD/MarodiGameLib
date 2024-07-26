@@ -21,6 +21,7 @@ public abstract class PhysicalPositional extends Positional {
     protected boolean noVelo; // disables velocity
     protected boolean noGrav; // disables gravity
     private double directionRadians = 0; // direction in radians
+    protected boolean noPush; // makes unable to push using collision
 
     // Points at which the object will collide and scripts that can run at these points
     protected Float leftStoppagePoint = null;
@@ -274,5 +275,13 @@ public abstract class PhysicalPositional extends Positional {
 
     public boolean isCollidingRight() {
         return collidingRight;
+    }
+
+    public boolean isNoPush() {
+        return noPush;
+    }
+
+    public void setNoPush(boolean noPush) {
+        this.noPush = noPush;
     }
 }
