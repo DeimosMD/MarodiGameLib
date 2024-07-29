@@ -19,14 +19,6 @@ public class Physics {
         collisionHandler.updateCollision(physList, getBaseFrictionalResistance());
     }
 
-    static double radiansToDegrees(double radians) {
-        return radians * (180/Math.PI);
-    }
-
-    static double degreesToRadians(double degrees) {
-        return degrees * (Math.PI/180);
-    }
-
     public float getGravity() {
         return gravity;
     }

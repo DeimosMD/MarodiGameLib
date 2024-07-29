@@ -133,13 +133,13 @@ public abstract class PhysicalPositional extends Positional {
     }
 
     public void accAtAngle(float acc, double degrees, float frameTime) {
-        velocityX += frameTime * acc * (float) Math.cos(Physics.degreesToRadians(degrees));
-        velocityY += frameTime * acc * (float) Math.sin(Physics.degreesToRadians(degrees));
+        velocityX += frameTime * acc * (float) Math.cos(Math.toRadians(degrees));
+        velocityY += frameTime * acc * (float) Math.sin(Math.toRadians(degrees));
     }
 
     public void setVeloAtAngle(float velo, double degrees) {
-        velocityX = velo * (float) Math.cos(Physics.degreesToRadians(degrees));
-        velocityY = velo * (float) Math.sin(Physics.degreesToRadians(degrees));
+        velocityX = velo * (float) Math.cos(Math.toRadians(degrees));
+        velocityY = velo * (float) Math.sin(Math.toRadians(degrees));
     }
 
     public void accForward(float acc, float frameTime) {
@@ -242,11 +242,11 @@ public abstract class PhysicalPositional extends Positional {
     }
 
     public void setDirectionDegrees(double directionDegrees) {
-        directionRadians = Physics.degreesToRadians(directionDegrees);
+        directionRadians = Math.toRadians(directionDegrees);
     }
 
     public double getDirectionDegrees() {
-        return Physics.radiansToDegrees(directionRadians);
+        return Math.toDegrees(directionRadians);
     }
 
     public void incDirectionDegrees(double directionDegrees) {
