@@ -102,4 +102,20 @@ public abstract class Game {
                 close()
         }
     }
+
+    public fun queueRunnable(r: MarodiRunnable) {
+        gameHandler.runnableQueue.add(r)
+    }
+
+    public fun delayRunnableNano(r: MarodiRunnable, nano: Long) {
+        gameHandler.scheduledRunnableMap[r] = System.nanoTime()+nano
+    }
+
+    public fun delayRunnableMS(r: MarodiRunnable, MS: Double) {
+        gameHandler.scheduledRunnableMap[r] = System.nanoTime()+(MS*1e6).toLong()
+    }
+
+    public fun delayRunnableSec(r: MarodiRunnable, Sec: Double) {
+        gameHandler.scheduledRunnableMap[r] = System.nanoTime()+(Sec*1e9).toLong()
+    }
 }

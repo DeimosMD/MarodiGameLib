@@ -1,5 +1,8 @@
 package marodi.control
 
+import java.util.*
+import kotlin.collections.HashMap
+
 class GameHandler (
     private val game: Game
 ) : Runnable  {
@@ -15,6 +18,8 @@ class GameHandler (
     val thread = Thread(this)
     lateinit var trackFPS: PerformanceTracker
     var latestSleepTimeMS = 1L
+    internal var runnableQueue: LinkedList<MarodiRunnable> = LinkedList()
+    internal var scheduledRunnableMap: HashMap<MarodiRunnable, Long> = HashMap() // the pair values are a scheduled time in nanoseconds, as in system nano-time
 
     fun init() {
         trackFPS = PerformanceTracker("Tracked FPS", runtimeSettings.isPrintFramesPerSecond)
@@ -28,6 +33,7 @@ class GameHandler (
         trackFPS.increaseNum()
 
         fun update() {
+            updateFromRunnableLists()
             keyHandler.update()
             mouse.update()
             loader.update()
@@ -71,6 +77,40 @@ class GameHandler (
                     System.runFinalization()
                 }
             }
+        }
+    }
+
+    private fun updateFromRunnableLists() {
+        // runs through runnableQueue
+        val queue = LinkedList(runnableQueue)
+        runnableQueue = LinkedList()
+        while (!queue.isEmpty()) {
+            queue.remove().run()
+        }
+        // runs through scheduledRunnableMap
+        val time = System.nanoTime()
+        val ready = ArrayList<MarodiRunnable>()
+        for (key in scheduledRunnableMap.keys) {
+            if (scheduledRunnableMap[key]!! <= time) {
+                ready.add(key)
+            }
+        }
+        // sorts ready into order based on corresponding time value in scheduledRunnableMap
+        var anyChanged = true
+        while (anyChanged) {
+            anyChanged = false
+            for (i in 0 until ready.size - 1) {
+                if (scheduledRunnableMap[ready[i]]!! > scheduledRunnableMap[ready[i + 1]]!!) {
+                    val temp = ready[i]
+                    ready[i] = ready[i+1]
+                    ready[i+1] = temp
+                    anyChanged = true
+                }
+            }
+        }
+        for (r in ready) {
+            scheduledRunnableMap.remove(r)
+            r.run()
         }
     }
 }
