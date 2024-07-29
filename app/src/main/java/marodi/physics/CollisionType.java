@@ -85,6 +85,7 @@ public class CollisionType {
         return false;
     }
 
+    // unfinished for the time being
     public boolean applyFriction(PhysicalPositional o1, PhysicalPositional o2, float frameProportion) {
         if (frictional) {
             float x = checkX(o2, o1, direction);
