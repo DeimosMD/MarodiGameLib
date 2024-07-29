@@ -284,4 +284,16 @@ public abstract class PhysicalPositional extends Positional {
     public void setNoPush(boolean noPush) {
         this.noPush = noPush;
     }
+
+    public void setNoPush() {
+        noPush = true;
+    }
+
+    public void setNoVelo() {
+        noVelo = true;
+    }
+
+    public void setNoGrav() {
+        noGrav = true;
+    }
 }
