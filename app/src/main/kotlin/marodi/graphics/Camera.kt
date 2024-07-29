@@ -14,16 +14,16 @@ public class Camera internal constructor (
 
     private fun toScreenX(inX: Float): Int {
         return if (runtimeSettings.drawFromCenter)
-                (inX + (graphicsPanel.width / 2 - x)).toInt()
+                Math.round(inX + (graphicsPanel.width / 2 - x))
         else
-                (inX - x).toInt()
+                Math.round(inX - x)
     }
 
     private fun toScreenY(inY: Float): Int {
         return if (runtimeSettings.drawFromCenter)
-                (-inY + (graphicsPanel.height / 2 + y)).toInt()
+                Math.round(-inY + (graphicsPanel.height / 2 + y))
         else
-                (-inY + y + graphicsPanel.height).toInt()
+                Math.round(-inY + y + graphicsPanel.height)
     }
 
     // gives screen pos and size to determine whether it'd be visible on the screen
