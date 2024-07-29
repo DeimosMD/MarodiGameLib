@@ -3,6 +3,7 @@ package marodi.graphics
 import marodi.control.Game
 import java.awt.Graphics
 import java.awt.Graphics2D
+import java.awt.Toolkit
 import javax.swing.JPanel
 
 class GraphicsPanel (
@@ -31,6 +32,7 @@ class GraphicsPanel (
         if (!game.drawList.isEmpty())
             for (drawable in game.drawList)
                 drawable.draw(game)
+        Toolkit.getDefaultToolkit().sync()
         graphics2D!!.dispose()
     }
 }
