@@ -4,6 +4,7 @@ import marodi.control.Game
 import java.awt.Graphics
 import java.awt.Graphics2D
 import java.awt.Toolkit
+import java.awt.geom.AffineTransform
 import javax.swing.JPanel
 
 class GraphicsPanel (
@@ -16,6 +17,7 @@ class GraphicsPanel (
     private val world get() = game.currentWorld
 
     internal var graphics2D = null as Graphics2D?
+    internal var transformSave = null as AffineTransform?
 
     fun init() {
         isDoubleBuffered = true
@@ -28,6 +30,7 @@ class GraphicsPanel (
     override fun paintComponent(g: Graphics) {
         super.paintComponent(g)
         graphics2D = g as Graphics2D
+        transformSave = g.transform
         world.draw(game)
         if (!game.drawList.isEmpty())
             for (drawable in game.drawList)
