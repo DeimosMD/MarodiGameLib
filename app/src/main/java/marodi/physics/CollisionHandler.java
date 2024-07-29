@@ -121,17 +121,21 @@ public final class CollisionHandler {
             ph.colX = ph.getX();
         }
         while (!toEvaluate.isEmpty()) {
+            Vector<CollisionObjectPair> doneThisIteration = new Vector<>();
             for (PhysicalPositional ph : toEvaluate) {
                 for (PhysicalPositional ph2 : physList) {
                     ph2.colY = ph2.getY();
                 }
                 for (CollisionObjectPair c : ph.collisionObjectPairListVertical) {
-                    if (c.runVerticalCollision()) {
-                        if (c.col.getFunctionType() != CollisionFunctionType.DETECTION) {
-                            toBeReevaluated.add(c.o1);
-                            toBeReevaluated.add(c.o2);
+                    if (!doneThisIteration.contains(c)) {
+                        doneThisIteration.add(c);
+                        if (c.runVerticalCollision()) {
+                            if (c.col.getFunctionType() != CollisionFunctionType.DETECTION) {
+                                toBeReevaluated.add(c.o1);
+                                toBeReevaluated.add(c.o2);
+                            }
+                            c.doVeloAndScript = false;
                         }
-                        c.doVeloAndScript = false;
                     }
                 }
                 if (checkHardStoppagesVertical(ph))
@@ -158,17 +162,21 @@ public final class CollisionHandler {
             ph.colY = ph.getY();
         }
         while (!toEvaluate.isEmpty()) {
+            Vector<CollisionObjectPair> doneThisIteration = new Vector<>();
             for (PhysicalPositional ph : physList) {
                 ph.colX = ph.getX();
             }
             for (PhysicalPositional ph : toEvaluate) {
                 for (CollisionObjectPair c : ph.collisionObjectPairListHorizontal) {
-                    if (c.runHorizontalCollision()) {
-                        if (c.col.getFunctionType() != CollisionFunctionType.DETECTION) {
-                            toBeReevaluated.add(c.o1);
-                            toBeReevaluated.add(c.o2);
+                    if (!doneThisIteration.contains(c)) {
+                        doneThisIteration.add(c);
+                        if (c.runHorizontalCollision()) {
+                            if (c.col.getFunctionType() != CollisionFunctionType.DETECTION) {
+                                toBeReevaluated.add(c.o1);
+                                toBeReevaluated.add(c.o2);
+                            }
+                            c.doVeloAndScript = false;
                         }
-                        c.doVeloAndScript = false;
                     }
                 }
                 if (checkHardStoppagesHorizontal(ph))

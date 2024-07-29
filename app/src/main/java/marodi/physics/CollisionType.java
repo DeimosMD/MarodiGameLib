@@ -32,10 +32,10 @@ public class CollisionType {
             if (functionType == CollisionFunctionType.ONE_WAY) {
                 if ((y < 0 && o2.barrierDown && o1.barrierUp) || (y > 0 && o2.barrierUp && o1.barrierDown)) {
                     return false;
-                } else if ((y > 0 && o2.barrierDown) || (y < 0 && o2.barrierUp) || o2.noPush) {
-                    oneWayAdjustY(o2, o1, -y, doVeloAndScript);
+                } else if ((y > 0 && o2.barrierUp) || (y < 0 && o2.barrierDown) || o2.noPush) {
+                    oneWayAdjustY(o2, o1, -y, doVeloAndScript); System.out.println("a");
                 } else {
-                    oneWayAdjustY(o1, o2, y, doVeloAndScript);
+                    oneWayAdjustY(o1, o2, y, doVeloAndScript); System.out.println("b");
                 }
             } else if (functionType == CollisionFunctionType.TWO_WAY){
                 if ((y < 0 && o2.barrierDown && o1.barrierUp) || (y > 0 && o2.barrierUp && o1.barrierDown)) {
@@ -70,9 +70,9 @@ public class CollisionType {
             } else if (functionType == CollisionFunctionType.TWO_WAY){
                 if ((x < 0 && o2.barrierLeft && o1.barrierRight) || (x > 0 && o2.barrierRight && o1.barrierLeft)) {
                     return false;
-                } else if (((x > 0 && o1.barrierRight) || (x < 0 && o1.barrierLeft) || o1.noPush) && !o2.noPush) {
+                } else if (((x > 0 && o1.barrierLeft) || (x < 0 && o1.barrierRight) || o1.noPush) && !o2.noPush) {
                     oneWayAdjustX(o1, o2, x, doVeloAndScript);
-                } else if ((x > 0 && o2.barrierLeft) || (x < 0 && o2.barrierRight) || o2.noPush) {
+                } else if ((x > 0 && o2.barrierRight) || (x < 0 && o2.barrierLeft) || o2.noPush) {
                     oneWayAdjustX(o2, o1, -x, doVeloAndScript);
                 } else {
                     twoWayAdjustX(o1, o2, x, doVeloAndScript);
@@ -97,33 +97,12 @@ public class CollisionType {
                         );
                 if (x != 0) {
                     if (functionType == CollisionFunctionType.ONE_WAY) {
-                        float normalForce = Math.abs(o1.velocityX - o2.velocityX); // velocity at which they are colliding, as weight is not considered
-                        float frictionalForce = normalForce * frictionalCoefficient;
-                        // uses y velocity because that is the axis on which they are experiencing friction, not colliding
-                        if (Math.abs(o1.velocityY - o2.velocityY) <= frictionalForce) {
-                            o2.velocityY = o1.velocityY;
-                        } else {
-                            if (o1.velocityY < o2.velocityY) {
-                                o2.velocityY -= frictionalForce;
-                            } else {
-                                o2.velocityY += frictionalForce;
-                            }
-                        }
+                        oneWayAdjustFrictionY(o1, o2, frictionalCoefficient);
                     }
                 }
                 if (y != 0) {
                     if (functionType == CollisionFunctionType.ONE_WAY) {
-                        float normalForce = Math.abs(o1.velocityY - o2.velocityY);
-                        float frictionalForce = normalForce * frictionalCoefficient;
-                        if (Math.abs(o1.velocityX - o2.velocityX) <= frictionalForce) {
-                            o2.velocityX = o1.velocityX;
-                        } else {
-                            if (o1.velocityX < o2.velocityX) {
-                                o2.velocityX -= frictionalForce;
-                            } else {
-                                o2.velocityX += frictionalForce;
-                            }
-                        }
+                        oneWayAdjustFrictionX(o1, o2, frictionalCoefficient);
                     }
                 }
                 return true;
@@ -292,6 +271,35 @@ public class CollisionType {
             o2.barrierDown = true;
         } else {
             o2.barrierUp = true;
+        }
+    }
+
+    private void oneWayAdjustFrictionX(PhysicalPositional o1, PhysicalPositional o2, float frictionalCoefficient) {
+        float normalForce = Math.abs(o1.velocityY - o2.velocityY);
+        float frictionalForce = normalForce * frictionalCoefficient;
+        if (Math.abs(o1.velocityX - o2.velocityX) <= frictionalForce) {
+            o2.velocityX = o1.velocityX;
+        } else {
+            if (o1.velocityX < o2.velocityX) {
+                o2.velocityX -= frictionalForce;
+            } else {
+                o2.velocityX += frictionalForce;
+            }
+        }
+    }
+
+    private void oneWayAdjustFrictionY(PhysicalPositional o1, PhysicalPositional o2, float frictionalCoefficient) {
+        float normalForce = Math.abs(o1.velocityX - o2.velocityX); // velocity at which they are colliding, as weight is not considered
+        float frictionalForce = normalForce * frictionalCoefficient;
+        // uses y velocity because that is the axis on which they are experiencing friction, not colliding
+        if (Math.abs(o1.velocityY - o2.velocityY) <= frictionalForce) {
+            o2.velocityY = o1.velocityY;
+        } else {
+            if (o1.velocityY < o2.velocityY) {
+                o2.velocityY -= frictionalForce;
+            } else {
+                o2.velocityY += frictionalForce;
+            }
         }
     }
 
