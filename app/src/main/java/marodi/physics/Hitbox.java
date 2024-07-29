@@ -14,19 +14,19 @@ public class Hitbox {
         yOffSet = y;
     }
 
-    float getLeftSide(float x) {
+    public float getLeftSide(float x) {
         return x + xOffSet;
     }
 
-    float getRightSide(float x) {
+    public float getRightSide(float x) {
         return x + xOffSet + width;
     }
 
-    float getBottomSide(float y) {
+    public float getBottomSide(float y) {
         return y + yOffSet;
     }
 
-    float getTopSide(float y) {
+    public float getTopSide(float y) {
         return y + yOffSet + height;
     }
 }

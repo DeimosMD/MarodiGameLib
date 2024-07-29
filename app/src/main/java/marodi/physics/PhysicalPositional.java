@@ -169,7 +169,7 @@ public abstract class PhysicalPositional extends Positional {
         return mass * velocityY;
     }
 
-    protected Hitbox[] getHitbox() {
+    public Hitbox[] getHitbox() {
         return hitbox;
     }
 
