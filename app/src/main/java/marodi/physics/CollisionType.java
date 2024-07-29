@@ -33,9 +33,9 @@ public class CollisionType {
                 if ((y < 0 && o2.barrierDown && o1.barrierUp) || (y > 0 && o2.barrierUp && o1.barrierDown)) {
                     return false;
                 } else if ((y > 0 && o2.barrierUp) || (y < 0 && o2.barrierDown) || o2.noPush) {
-                    oneWayAdjustY(o2, o1, -y, doVeloAndScript); System.out.println("a");
+                    oneWayAdjustY(o2, o1, -y, doVeloAndScript);
                 } else {
-                    oneWayAdjustY(o1, o2, y, doVeloAndScript); System.out.println("b");
+                    oneWayAdjustY(o1, o2, y, doVeloAndScript);
                 }
             } else if (functionType == CollisionFunctionType.TWO_WAY){
                 if ((y < 0 && o2.barrierDown && o1.barrierUp) || (y > 0 && o2.barrierUp && o1.barrierDown)) {
