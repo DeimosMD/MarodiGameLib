@@ -6,6 +6,7 @@ class GameHandler (
 
     private val graphicsPanel get() =  game.graphicsPanel
     private val keyHandler get() = game.keyHandler
+    private val mouse get() = game.mouse
     private val loader get() = game.loader
     private val runtimeSettings get() = game.runtimeSettings
     private val world get() = game.currentWorld
@@ -28,6 +29,7 @@ class GameHandler (
 
         fun update() {
             keyHandler.update()
+            mouse.update()
             loader.update()
             world.update(game)
             if (!game.updateList.isEmpty())

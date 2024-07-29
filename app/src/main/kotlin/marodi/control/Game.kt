@@ -20,6 +20,7 @@ public abstract class Game {
     internal lateinit var gameHandler: GameHandler
     public var runtimeSettings = RuntimeSettings()
     public lateinit var keyHandler: KeyHandler
+    public lateinit var mouse: Mouse
     public lateinit var camera: Camera
     internal var screen: Screen?
         private set
@@ -59,6 +60,7 @@ public abstract class Game {
         graphicsPanel = GraphicsPanel(this)
         gameHandler = GameHandler(this)
         keyHandler = KeyHandler(this)
+        mouse = Mouse(this)
         camera = Camera(this)
         loader = Loader(this)
         currentWorld = World()
@@ -67,6 +69,7 @@ public abstract class Game {
     public open fun launch() {
         graphicsPanel.init()
         keyHandler.init()
+        mouse.init()
         screen?.init()
         gameHandler.init()
         gameHandler.thread.start()

@@ -20,7 +20,7 @@ class Loader (
     }
 
     public fun update() {
-        if (keyHandler.downPressed(KeyEvent.VK_F1))
+        if (keyHandler.isBeginPress(KeyEvent.VK_F1))
             reloadRes()
     }
 

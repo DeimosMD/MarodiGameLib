@@ -18,8 +18,6 @@ class KeyHandler (
 
     fun init() {
         graphicsPanel.addKeyListener(this)
-        graphicsPanel.isFocusable = true
-        graphicsPanel.requestFocusInWindow()
     }
 
     fun update() {
@@ -32,7 +30,7 @@ class KeyHandler (
         return containsKeyOrKeyOfSet(currentTickPressed, keyCode)
     }
 
-    public fun downPressed(keyCode: Int): Boolean {
+    public fun isBeginPress(keyCode: Int): Boolean {
         return containsKeyOrKeyOfSet(currentTickPressed, keyCode) && !containsKeyOrKeyOfSet(lastTickPressed, keyCode)
     }
 

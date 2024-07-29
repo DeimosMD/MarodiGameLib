@@ -21,8 +21,9 @@ class GraphicsPanel (
 
     fun init() {
         isDoubleBuffered = true
-        isFocusable = true
         background = runtimeSettings.backgroundColor
+        isFocusable = true
+        requestFocusInWindow()
         screen?.add(this)
     }
 
