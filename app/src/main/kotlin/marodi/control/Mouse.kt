@@ -10,6 +10,7 @@ class Mouse(
 ) : MouseListener, MouseMotionListener {
 
     private val graphicsPanel get() = game.graphicsPanel
+    private val runtimeSettings get() = game.runtimeSettings
 
     public var screenX: Int = 0
         private set
@@ -17,8 +18,18 @@ class Mouse(
         private set
     public var onScreen = false
         private set
-    public val gameX: Int get() = screenX
-    public val gameY: Int get() = graphicsPanel.height-screenY
+    public val gameX: Int get() {
+        return if (runtimeSettings.drawFromCenter)
+            screenX-graphicsPanel.width/2
+        else
+            screenX
+    }
+    public val gameY: Int get() {
+        return if (runtimeSettings.drawFromCenter)
+            graphicsPanel.height/2-screenY
+        else
+            graphicsPanel.height-screenY
+    }
 
     // same logic as in keyHandler
     // assumes a mouse can have up to eight buttons, just in case
