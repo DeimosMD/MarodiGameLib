@@ -42,7 +42,8 @@ public abstract class Game {
             return v
         }
     public val updateList = Vector<Updatable>()
-    public val drawList = Vector<Drawable>()
+    public val foregroundDrawList = Vector<Drawable>()
+    public val backgroundDrawList = Vector<Drawable>()
     public var frameNum = 0
         internal set
     public val FPS get() = gameHandler.trackFPS.rate

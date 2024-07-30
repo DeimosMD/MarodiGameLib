@@ -32,9 +32,12 @@ class GraphicsPanel (
         super.paintComponent(g)
         graphics2D = g as Graphics2D
         transformSave = g.transform
+        if (!game.backgroundDrawList.isEmpty())
+            for (drawable in game.backgroundDrawList)
+                drawable.draw(game)
         world.draw(game)
-        if (!game.drawList.isEmpty())
-            for (drawable in game.drawList)
+        if (!game.foregroundDrawList.isEmpty())
+            for (drawable in game.foregroundDrawList)
                 drawable.draw(game)
         Toolkit.getDefaultToolkit().sync()
         graphics2D!!.dispose()
