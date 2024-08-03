@@ -53,15 +53,16 @@ public abstract class PhysicalPositional extends Positional {
     boolean barrierRight = false;
 
     void resetCollisionVariables() {
-            collidingUp = false;
-            collidingDown = false;
-            collidingLeft = false;
-            collidingRight = false;
-            barrierDown = false;
-            barrierUp = false;
-            barrierLeft = false;
-            barrierRight = false;
-            for (CollisionObjectPair c : collisionObjectPairListVertical) c.doVeloAndScript = true;
+        collidingUp = false;
+        collidingDown = false;
+        collidingLeft = false;
+        collidingRight = false;
+        barrierDown = false;
+        barrierUp = false;
+        barrierLeft = false;
+        barrierRight = false;
+        for (CollisionObjectPair c : collisionObjectPairListVertical) c.doVeloAndScript = true;
+        for (CollisionObjectPair c : collisionObjectPairListHorizontal) c.doVeloAndScript = true;
     }
 
     void updatePhysicalVariables(Game game) {
