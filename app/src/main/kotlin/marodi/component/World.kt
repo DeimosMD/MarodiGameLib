@@ -26,7 +26,7 @@ public open class World : Vector2D() {
                 if (o.isVisible)
                     spritesToDraw.add(o)
             }
-        val orderedSpritesToDraw = ArrayList<Sprite>() // sprites in order from highest depth to lowest depth
+        val orderedSpritesToDraw = ArrayList<Sprite>() // sprites in order from the highest depth to the lowest depth
         while (spritesToDraw.isNotEmpty()) {
             var highestDepthSprite = spritesToDraw[0]
             for (sprite in spritesToDraw)
