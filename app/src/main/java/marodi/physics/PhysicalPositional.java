@@ -162,6 +162,110 @@ public abstract class PhysicalPositional extends Positional {
         return (float) Math.sqrt(Math.pow(positional.getX()-this.x, 2) + Math.pow(positional.getY()-this.y, 2));
     }
 
+    public boolean isTouchingArea(float x1_, float x2_, float y1_, float y2_) {
+        float x1 = x1_;
+        float x2 = x2_;
+        float y1 = y1_;
+        float y2 = y2_;
+
+        // Swaps values if in wrong order
+        if (x1 > x2) {
+            x1 = x2_;
+            x2 = x1_;
+        }
+        if (y1 > y2) {
+            y1 = y2_;
+            y2 = y1_;
+        }
+
+        for (Hitbox h : hitbox) {
+            if (
+                    (isPointInRange(h.getLeftSide(x), x1, x2)
+                            || isPointInRange(h.getRightSide(x), x1, x2)
+                            || (h.getLeftSide(x) <= x1 && h.getRightSide(x) >= x2))
+                    && (isPointInRange(h.getBottomSide(y), y1, y2)
+                            || isPointInRange(h.getTopSide(y), y1, y2)
+                            || (h.getBottomSide(y) <= y1 && h.getTopSide(y) >= y2))
+            ) return true;
+        }
+        return false;
+    }
+
+    public boolean isContainedToArea(float x1_, float x2_, float y1_, float y2_) {
+        float x1 = x1_;
+        float x2 = x2_;
+        float y1 = y1_;
+        float y2 = y2_;
+
+        // Swaps values if in wrong order
+        if (x1 > x2) {
+            x1 = x2_;
+            x2 = x1_;
+        }
+        if (y1 > y2) {
+            y1 = y2_;
+            y2 = y1_;
+        }
+
+        for (Hitbox h : hitbox) {
+            if (!(
+                        isPointInRange(h.getLeftSide(x), x1, x2)
+                            && isPointInRange(h.getRightSide(x), x1, x2)
+                            && isPointInRange(h.getBottomSide(y), y1, y2)
+                            && isPointInRange(h.getTopSide(y), y1, y2)
+            )) return false;
+        }
+        return true;
+    }
+
+    private boolean isPointInRange(float num, float min, float max) {
+        return min < num && num < max;
+    }
+
+    public Float getMinX() {
+        if (hitbox.length > 0) {
+            float min = hitbox[0].getLeftSide(x);
+            for (Hitbox h : hitbox)
+                if (h.getLeftSide(x) < min)
+                    min = h.getLeftSide(x);
+            return min;
+        }
+        return null;
+    }
+
+    public Float getMaxX() {
+        if (hitbox.length > 0) {
+            float max = hitbox[0].getRightSide(x);
+            for (Hitbox h : hitbox)
+                if (h.getRightSide(x) > max)
+                    max = h.getRightSide(x);
+            return max;
+        }
+        return null;
+    }
+
+    public Float getMinY() {
+        if (hitbox.length > 0) {
+            float min = hitbox[0].getBottomSide(y);
+            for (Hitbox h : hitbox)
+                if (h.getBottomSide(y) < min)
+                    min = h.getBottomSide(y);
+            return min;
+        }
+        return null;
+    }
+
+    public Float getMaxY() {
+        if (hitbox.length > 0) {
+            float max = hitbox[0].getTopSide(y);
+            for (Hitbox h : hitbox)
+                if (h.getTopSide(y) > max)
+                    max = h.getTopSide(y);
+            return max;
+        }
+        return null;
+    }
+
     public float getMomentumX() {
         return mass * velocityX;
     }
