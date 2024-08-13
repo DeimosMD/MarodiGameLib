@@ -35,8 +35,11 @@ public open class World : Vector2D() {
             orderedSpritesToDraw.add(highestDepthSprite)
             spritesToDraw.remove(highestDepthSprite)
         }
-        for (sprite in orderedSpritesToDraw)
+        for (sprite in orderedSpritesToDraw) {
             sprite.draw(game)
+            for (h in sprite.hitbox)
+                h.draw(game, sprite)
+        }
     }
 
     public open fun getGravity(game: Game): Float {
