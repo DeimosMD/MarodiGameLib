@@ -33,15 +33,14 @@ class GameHandler (
         trackFPS.increaseNum()
 
         fun update() {
-            updateFromRunnableLists()
             keyHandler.update()
             mouse.update()
             loader.update()
             world.update(game)
-            if (!game.updateList.isEmpty())
-                for (updatable in game.updateList)
-                    updatable.update(game)
+            for (updatable in game.updateList)
+                updatable.update(game)
             physics.update(game)
+            updateFromRunnableLists()
         }
 
         fun sleep() {
