@@ -162,6 +162,13 @@ public abstract class PhysicalPositional extends Positional {
         return (float) Math.sqrt(Math.pow(positional.getX()-this.x, 2) + Math.pow(positional.getY()-this.y, 2));
     }
 
+    // also uses hypotenuse formula
+    public float getOverallVelo() {
+        return (float) Math.sqrt(
+                Math.pow(velocityX, 2) + Math.pow(velocityY, 2)
+        );
+    }
+
     public boolean isTouchingArea(float x1_, float x2_, float y1_, float y2_) {
         float x1 = x1_;
         float x2 = x2_;
