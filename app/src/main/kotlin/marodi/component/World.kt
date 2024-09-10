@@ -5,7 +5,7 @@ import marodi.control.Game
 public open class World : Vector2D() {
 
     fun update(game: Game) {
-        for (o in this) {
+        for (o in this.clone() as World) {
             if (o is Sprite) {
                 o.increaseLifespan()
                 if (o.lifespan == 1)
